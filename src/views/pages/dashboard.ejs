@@ -1,0 +1,109 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+
+  <main class="game-main">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">SATURDAY, JULY 18</span>
+        <h1>Hey, <%= game.player.name %>! <span class="wave">✦</span></h1>
+        <p>Your next level is closer than you think.</p>
+      </div>
+      <div class="top-actions">
+        <div class="coin-pill"><i class="bi bi-coin"></i><strong><%= game.player.coins %></strong></div>
+        <button class="icon-button" type="button" aria-label="Notifications"><i class="bi bi-bell"></i><span></span></button>
+        <a href="/avatars" class="avatar-link" aria-label="Open profile">
+          <%- include('../partials/avatar', { avatar: game.avatars.find(item => item.id === game.player.avatar), size: 'sm' }) %>
+        </a>
+      </div>
+    </header>
+
+    <section class="hero-card">
+      <div class="hero-copy">
+        <span class="level-chip"><i class="bi bi-stars"></i> Level <%= game.player.level %></span>
+        <h2><%= game.player.title %></h2>
+        <p>Every mission makes your character stronger.</p>
+        <div class="xp-row">
+          <span><strong><%= game.player.currentXp %></strong> / <%= game.player.nextLevelXp %> XP</span>
+          <span><%= game.player.nextLevelXp - game.player.currentXp %> XP to level up</span>
+        </div>
+        <div class="progress hero-progress">
+          <div class="progress-bar" style="width: <%= Math.round((game.player.currentXp / game.player.nextLevelXp) * 100) %>%"></div>
+        </div>
+      </div>
+      <div class="hero-avatar-wrap">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <%- include('../partials/avatar', { avatar: game.avatars.find(item => item.id === game.player.avatar), size: 'hero' }) %>
+        <span class="float-star star-one">✦</span><span class="float-star star-two">★</span>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="main-column">
+        <div class="section-heading" id="missions">
+          <div><span class="eyebrow">TODAY'S ADVENTURE</span><h2>Your missions</h2></div>
+          <span class="daily-counter"><strong><%= game.dailyProgress.completed %></strong>/<%= game.dailyProgress.total %> complete</span>
+        </div>
+
+        <article class="featured-mission">
+          <div class="mission-icon"><i class="bi <%= game.featuredMission.icon %>"></i></div>
+          <div class="mission-copy">
+            <span class="mission-type">FEATURED MISSION · <%= game.featuredMission.difficulty.toUpperCase() %></span>
+            <h3><%= game.featuredMission.title %></h3>
+            <p><%= game.featuredMission.description %></p>
+            <div class="reward-list"><span><i class="bi bi-stars"></i> +<%= game.featuredMission.xp %> XP</span><span><i class="bi bi-coin"></i> +<%= game.featuredMission.coins %></span></div>
+          </div>
+          <button class="btn-complete demo-action" type="button"><i class="bi bi-check2"></i><span>Complete</span></button>
+        </article>
+
+        <div class="mission-list">
+          <% game.missions.forEach((mission) => { %>
+            <article class="mission-card <%= mission.status === 'completed' ? 'is-complete' : '' %>">
+              <div class="mission-icon icon-<%= mission.color %>"><i class="bi <%= mission.icon %>"></i></div>
+              <div class="mission-copy">
+                <span class="mission-category"><%= mission.category %></span>
+                <h3><%= mission.title %></h3>
+                <p><%= mission.description %></p>
+              </div>
+              <div class="mission-reward"><span>+<%= mission.xp %> XP</span><span><i class="bi bi-coin"></i> <%= mission.coins %></span></div>
+              <% if (mission.status === 'completed') { %>
+                <span class="complete-check"><i class="bi bi-check-lg"></i></span>
+              <% } else { %>
+                <button class="round-action demo-action" type="button" aria-label="Complete <%= mission.title %>"><i class="bi bi-chevron-right"></i></button>
+              <% } %>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <aside class="right-column">
+        <article class="streak-card">
+          <div class="fire"><i class="bi bi-fire"></i></div>
+          <div><span class="eyebrow">CURRENT STREAK</span><h2><%= game.streak.count %> <small><%= game.streak.label %></small></h2><p>Personal best: <strong><%= game.streak.best %> days</strong></p></div>
+          <div class="streak-days">
+            <% ['M','T','W','T','F','S','S'].forEach((day, index) => { %>
+              <span class="<%= index < 5 ? 'done' : '' %>"><i class="bi <%= index < 5 ? 'bi-check' : '' %>"></i><small><%= day %></small></span>
+            <% }) %>
+          </div>
+        </article>
+
+        <article class="team-card">
+          <div class="team-header"><span><i class="bi bi-people-fill"></i></span><small><%= game.teamMission.daysLeft %> days left</small></div>
+          <span class="eyebrow">TEAM MISSION</span>
+          <h2><%= game.teamMission.title %></h2>
+          <p><%= game.teamMission.description %></p>
+          <div class="team-progress-label"><span>Team progress</span><strong><%= game.teamMission.progress %>%</strong></div>
+          <div class="progress"><div class="progress-bar" style="width: <%= game.teamMission.progress %>%"></div></div>
+          <div class="team-footer"><div class="avatar-stack"><span>D</span><span>S</span></div><strong><i class="bi bi-stars"></i> +<%= game.teamMission.xp %> XP each</strong></div>
+        </article>
+
+        <a class="profile-teaser" href="/avatars">
+          <div><span class="eyebrow">MAKE IT YOURS</span><h3>Choose your avatar</h3><p>New characters unlock as you level up.</p></div>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </aside>
+    </div>
+  </main>
+</div>
+<%- include('../partials/footer') %>
+

@@ -1,0 +1,18 @@
+{
+  "name": "xp-challenge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A family gamification experience for building positive habits.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  }
+}

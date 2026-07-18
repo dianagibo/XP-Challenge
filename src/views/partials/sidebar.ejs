@@ -1,0 +1,25 @@
+<aside class="game-sidebar d-none d-lg-flex">
+  <a class="brand" href="/" aria-label="XP Challenge home">
+    <span class="brand-mark">XP</span>
+    <span>Challenge</span>
+  </a>
+
+  <nav class="side-nav" aria-label="Main navigation">
+    <a class="nav-link <%= activePage === 'home' ? 'active' : '' %>" href="/">
+      <i class="bi bi-grid-fill"></i><span>Home</span>
+    </a>
+    <a class="nav-link" href="#missions"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
+    <a class="nav-link" href="#"><i class="bi bi-gift-fill"></i><span>Rewards</span></a>
+    <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/avatars">
+      <i class="bi bi-person-fill"></i><span>Profile</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-quest">
+    <span class="mini-label">Weekly quest</span>
+    <strong>2 of 3 goals</strong>
+    <div class="progress"><div class="progress-bar" style="width: 66%"></div></div>
+    <small>You're almost there!</small>
+  </div>
+</aside>
+
