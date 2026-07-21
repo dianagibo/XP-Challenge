@@ -10,7 +10,7 @@
     </a>
     <a class="nav-link <%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.role === 'admin_player' ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
     <% if (['admin_player', 'validator'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Reviews</span></a><% } %>
-    <a class="nav-link" href="#"><i class="bi bi-gift-fill"></i><span>Rewards</span></a>
+    <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'rewards' ? 'active' : '' %>" href="/rewards"><i class="bi bi-gift-fill"></i><span>Rewards</span></a><% } %>
     <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/avatars">
       <i class="bi bi-person-fill"></i><span>Profile</span>
     </a>

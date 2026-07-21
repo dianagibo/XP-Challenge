@@ -4,6 +4,7 @@
   <% if (['admin_player', 'validator'].includes(currentUser?.role)) { %>
     <a class="<%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Reviews</span></a>
   <% } %>
+  <% if (currentUser?.role === 'player') { %><a class="<%= activePage === 'rewards' ? 'active' : '' %>" href="/rewards"><i class="bi bi-gift-fill"></i><span>Rewards</span></a><% } %>
   <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/avatars"><i class="bi bi-person-fill"></i><span>Profile</span></a>
   <form method="post" action="/auth/logout">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">

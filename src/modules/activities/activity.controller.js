@@ -108,7 +108,9 @@ async function review(request, response, next) {
     );
     request.session.flash = {
       type: 'success',
-      message: request.body.decision === 'approved' ? 'Mission approved!' : 'Changes requested from Sofi.'
+      message: request.body.decision === 'approved'
+        ? 'Mission approved! XP and coins were delivered to Sofi.'
+        : 'Changes requested from Sofi.'
     };
     return response.redirect('/missions/review');
   } catch (error) {

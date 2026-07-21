@@ -50,7 +50,7 @@
       <% } else if (activity.status === 'pending_validation') { %>
         <div class="awaiting-card"><i class="bi bi-hourglass-split"></i><div><strong>Awaiting approval</strong><p>This mission has already been sent to your validators.</p></div></div>
       <% } else { %>
-        <div class="review-feedback approved"><i class="bi bi-check-circle-fill"></i><div><strong>Mission approved</strong><p>Your effort was validated. XP and coins will be delivered in the next step.</p></div></div>
+        <div class="review-feedback approved"><i class="bi bi-check-circle-fill"></i><div><strong>Mission approved</strong><p>You earned <%= activity.xpReward %> XP and <%= activity.coinReward %> coins. They are already reflected in your balance.</p></div></div>
       <% } %>
     </section>
   </main>

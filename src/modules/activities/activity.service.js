@@ -1,5 +1,6 @@
 const Activity = require('./activity.model');
 const Membership = require('../families/membership.model');
+const rewardService = require('../rewards/reward.service');
 
 const REWARDS = Object.freeze({
   easy: { xp: 10, coins: 2 },
@@ -146,17 +147,35 @@ async function reviewActivity(activityId, decision, reviewNote, currentUser) {
   if (note.length > 500) throw validationError('Your feedback must be 500 characters or fewer.');
   if (decision === 'changes_requested' && !note) throw validationError('Feedback is required when requesting changes.');
 
-  const activity = await Activity.findOneAndUpdate({
-    _id: activityId,
-    family: currentUser.familyId,
-    validators: currentUser.id,
-    status: 'pending_validation'
-  }, {
-    $set: { status: decision, reviewNote: note, reviewedBy: currentUser.id, reviewedAt: new Date() }
-  }, { new: true });
+  const session = await Activity.startSession();
+  let reviewedActivity;
+  try {
+    await session.withTransaction(async () => {
+      const activity = await Activity.findOne({
+        _id: activityId,
+        family: currentUser.familyId,
+        validators: currentUser.id,
+        status: 'pending_validation'
+      }).session(session);
+      if (!activity) throw notFoundError();
 
-  if (activity) return activity;
-  throw notFoundError();
+      activity.status = decision;
+      activity.reviewNote = note;
+      activity.reviewedBy = currentUser.id;
+      activity.reviewedAt = new Date();
+
+      if (decision === 'approved') {
+        const transaction = await rewardService.grantMissionRewards(activity, currentUser.id, session);
+        activity.rewardsGrantedAt = new Date();
+        activity.rewardTransaction = transaction._id;
+      }
+
+      reviewedActivity = await activity.save({ session });
+    });
+    return reviewedActivity;
+  } finally {
+    await session.endSession();
+  }
 }
 
 function validationError(message) {
