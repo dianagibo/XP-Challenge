@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const User = require('../users/user.model');
 const Membership = require('../families/membership.model');
+const Family = require('../families/family.model');
 
 async function authenticate(username, password) {
   const normalizedUsername = String(username || '').trim().toLowerCase();
