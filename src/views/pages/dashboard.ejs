@@ -103,8 +103,8 @@
           <div class="fire"><i class="bi bi-fire"></i></div>
           <div><span class="eyebrow">CURRENT STREAK</span><h2><%= game.streak.count %> <small><%= game.streak.label %></small></h2><p>Personal best: <strong><%= game.streak.best %> days</strong></p></div>
           <div class="streak-days">
-            <% ['M','T','W','T','F','S','S'].forEach((day, index) => { %>
-              <span class="<%= index < 5 ? 'done' : '' %>"><i class="bi <%= index < 5 ? 'bi-check' : '' %>"></i><small><%= day %></small></span>
+            <% ['M','T','W','T','F','S','S'].forEach((day, index) => { const isStreakDay = index >= 7 - Math.min(game.streak.count, 7); %>
+              <span class="<%= isStreakDay ? 'done' : '' %>"><i class="bi <%= isStreakDay ? 'bi-check' : '' %>"></i><small><%= day %></small></span>
             <% }) %>
           </div>
         </article>

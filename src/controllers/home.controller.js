@@ -1,6 +1,7 @@
 const demoGame = require('../data/demo-game');
 const activityService = require('../modules/activities/activity.service');
 const rewardService = require('../modules/rewards/reward.service');
+const progressService = require('../modules/progress/progress.service');
 
 async function showDashboard(request, response, next) {
   if (request.session.user.role === 'validator') {
@@ -21,7 +22,16 @@ async function showDashboard(request, response, next) {
     Object.assign(game.player, rewards);
     let activities;
     if (request.session.user.role === 'player') {
-      activities = await activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId);
+      const [playerActivities, progress] = await Promise.all([
+        activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId),
+        progressService.getPlayerProgress(request.session.user.id, request.session.user.familyId)
+      ]);
+      activities = playerActivities;
+      game.streak = {
+        count: progress.stats.currentStreak,
+        label: progress.stats.currentStreak === 1 ? 'day' : 'days',
+        best: progress.stats.bestStreak
+      };
     } else {
       ({ activities } = await activityService.listManagedActivities(request.session.user.familyId));
     }
@@ -59,8 +69,26 @@ async function showRewards(request, response, next) {
   } catch (error) { return next(error); }
 }
 
+async function showProgress(request, response, next) {
+  try {
+    if (request.session.user.role === 'admin_player') {
+      const players = await progressService.getFamilyProgress(request.session.user.familyId);
+      return response.render('pages/family-progress', {
+        pageTitle: 'Family progress', activePage: 'progress', players
+      });
+    }
+    const progress = await progressService.getPlayerProgress(
+      request.session.user.id, request.session.user.familyId
+    );
+    return response.render('pages/progress', {
+      pageTitle: 'My progress', activePage: 'progress', progress
+    });
+  } catch (error) { return next(error); }
+}
+
 module.exports = {
   showDashboard,
   showAvatars,
-  showRewards
+  showRewards,
+  showProgress
 };
