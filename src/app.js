@@ -1,5 +1,6 @@
 const path = require('node:path');
 const express = require('express');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
 const helmet = require('helmet');
@@ -15,6 +16,8 @@ const environment = require('./config/environment');
 
 const app = express();
 
+if (environment.isProduction) app.set('trust proxy', 1);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -22,6 +25,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet({ contentSecurityPolicy: false }));
+app.get('/health', (request, response) => {
+  const databaseReady = mongoose.connection.readyState === 1;
+  response.status(databaseReady ? 200 : 503).json({
+    status: databaseReady ? 'ok' : 'unavailable',
+    database: databaseReady ? 'connected' : 'disconnected'
+  });
+});
 app.use(session({
   name: 'xp.sid',
   secret: environment.sessionSecret,
