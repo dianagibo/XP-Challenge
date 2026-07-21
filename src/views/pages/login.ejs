@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<main class="auth-page">
+  <section class="auth-card">
+    <a class="brand auth-brand" href="/auth/login"><span class="brand-mark">XP</span><span>XP Challenge</span></a>
+    <div class="auth-heading">
+      <span class="eyebrow">WELCOME BACK, PLAYER</span>
+      <h1>Ready for your next adventure?</h1>
+      <p>Log in to continue earning XP, coins and new achievements.</p>
+    </div>
+    <% if (error) { %>
+      <div class="auth-error" role="alert"><i class="bi bi-exclamation-circle"></i><span><%= error %></span></div>
+    <% } %>
+    <form class="auth-form" method="post" action="/auth/login">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label for="username">Username</label>
+      <div class="input-wrap"><i class="bi bi-person"></i><input id="username" name="username" type="text" value="<%= username %>" autocomplete="username" required autofocus></div>
+      <label for="password">Password</label>
+      <div class="input-wrap"><i class="bi bi-lock"></i><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="auth-submit" type="submit">Start playing <i class="bi bi-arrow-right"></i></button>
+    </form>
+    <p class="auth-note"><i class="bi bi-shield-check"></i> Your family adventure is private and protected.</p>
+  </section>
+  <aside class="auth-art" aria-hidden="true">
+    <div class="auth-orbit orbit-a"></div><div class="auth-orbit orbit-b"></div>
+    <div class="login-level"><span>LEVEL</span><strong>03</strong></div>
+    <span class="login-star ls-one">✦</span><span class="login-star ls-two">★</span><span class="login-star ls-three">✦</span>
+    <h2>Small missions.<br>Big achievements.</h2>
+  </aside>
+</main>
+<%- include('../partials/footer') %>

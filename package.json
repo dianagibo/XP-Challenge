@@ -3,16 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "description": "A family gamification experience for building positive habits.",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "node --watch src/app.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/scripts/seed.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-mongo": "^6.0.0",
+    "dotenv": "^17.4.2",
     "ejs": "^3.1.10",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.6.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

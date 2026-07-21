@@ -1,0 +1,16 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main">
+    <header class="topbar">
+      <div><span class="eyebrow">VALIDATION CENTER</span><h1>Hi, <%= currentUser.name %>!</h1><p>Here you will help celebrate completed missions.</p></div>
+      <form class="mobile-logout" method="post" action="/auth/logout"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="icon-button" type="submit" aria-label="Log out"><i class="bi bi-box-arrow-right"></i></button></form>
+    </header>
+    <section class="hero-card validator-hero">
+      <div class="hero-copy"><span class="level-chip"><i class="bi bi-shield-check"></i> Validator</span><h2>No missions waiting yet</h2><p>When Sofi or Diana completes a mission, it will appear here for your review.</p></div>
+      <div class="validator-icon"><i class="bi bi-check2-circle"></i></div>
+    </section>
+    <section class="validator-next"><span class="eyebrow">COMING IN THIS SPRINT</span><h2>Review completed missions</h2><p>The validation workflow will let you approve a mission, recognize initiative or ask for a small adjustment.</p></section>
+  </main>
+</div>
+<%- include('../partials/footer') %>

@@ -1,4 +1,4 @@
-  <%- include('mobile-nav') %>
+  <% if (currentUser) { %><%- include('mobile-nav') %><% } %>
   <div class="toast-container position-fixed top-0 end-0 p-3">
     <div id="demoToast" class="toast game-toast" role="status" aria-live="polite" aria-atomic="true">
       <div class="toast-body"><i class="bi bi-stars"></i> <span>Demo action completed!</span></div>
@@ -8,4 +8,3 @@
   <script src="/js/dashboard.js"></script>
 </body>
 </html>
-
