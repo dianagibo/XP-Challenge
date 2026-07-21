@@ -2,6 +2,7 @@ const demoGame = require('../data/demo-game');
 const activityService = require('../modules/activities/activity.service');
 const rewardService = require('../modules/rewards/reward.service');
 const progressService = require('../modules/progress/progress.service');
+const weeklyGoalService = require('../modules/goals/weekly-goal.service');
 
 async function showDashboard(request, response, next) {
   if (request.session.user.role === 'validator') {
@@ -21,12 +22,15 @@ async function showDashboard(request, response, next) {
     const rewards = await rewardService.getPlayerRewards(request.session.user.id);
     Object.assign(game.player, rewards);
     let activities;
+    let activeGoal = null;
     if (request.session.user.role === 'player') {
-      const [playerActivities, progress] = await Promise.all([
+      const [playerActivities, progress, goals] = await Promise.all([
         activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId),
-        progressService.getPlayerProgress(request.session.user.id, request.session.user.familyId)
+        progressService.getPlayerProgress(request.session.user.id, request.session.user.familyId),
+        weeklyGoalService.listGoals(request.session.user)
       ]);
       activities = playerActivities;
+      activeGoal = goals.find((goal) => goal.status === 'active') || goals.find((goal) => goal.status === 'completed') || null;
       game.streak = {
         count: progress.stats.currentStreak,
         label: progress.stats.currentStreak === 1 ? 'day' : 'days',
@@ -39,7 +43,7 @@ async function showDashboard(request, response, next) {
     delete request.session.flash;
     return response.render('pages/dashboard', {
       pageTitle: 'My adventure', activePage: 'home', game, activities,
-      canManageMissions: request.session.user.role === 'admin_player', flash
+      canManageMissions: request.session.user.role === 'admin_player', activeGoal, flash
     });
   } catch (error) {
     return next(error);

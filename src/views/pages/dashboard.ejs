@@ -109,7 +109,15 @@
           </div>
         </article>
 
-        <article class="team-card">
+        <% if (activeGoal) { %><a class="team-card dashboard-goal" href="/weekly-goals">
+          <div class="team-header"><span><i class="bi bi-bullseye"></i></span><small><%= activeGoal.endDate %></small></div>
+          <span class="eyebrow">WEEKLY GOAL</span>
+          <h2><%= activeGoal.title %></h2>
+          <p><%= activeGoal.completedCount %> of <%= activeGoal.targetCount %> approved missions</p>
+          <div class="team-progress-label"><span>Weekly progress</span><strong><%= activeGoal.percent %>%</strong></div>
+          <div class="progress"><div class="progress-bar" style="width: <%= activeGoal.percent %>%"></div></div>
+          <div class="team-footer"><strong><i class="bi bi-stars"></i> +<%= activeGoal.xpBonus %> XP · <i class="bi bi-coin"></i> +<%= activeGoal.coinBonus %></strong></div>
+        </a><% } else { %><article class="team-card">
           <div class="team-header"><span><i class="bi bi-people-fill"></i></span><small><%= game.teamMission.daysLeft %> days left</small></div>
           <span class="eyebrow">TEAM MISSION</span>
           <h2><%= game.teamMission.title %></h2>
@@ -117,7 +125,7 @@
           <div class="team-progress-label"><span>Team progress</span><strong><%= game.teamMission.progress %>%</strong></div>
           <div class="progress"><div class="progress-bar" style="width: <%= game.teamMission.progress %>%"></div></div>
           <div class="team-footer"><div class="avatar-stack"><span>D</span><span>S</span></div><strong><i class="bi bi-stars"></i> +<%= game.teamMission.xp %> XP each</strong></div>
-        </article>
+        </article><% } %>
 
         <a class="profile-teaser" href="/avatars">
           <div><span class="eyebrow">MAKE IT YOURS</span><h3>Choose your avatar</h3><p>New characters unlock as you level up.</p></div>

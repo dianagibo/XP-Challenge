@@ -6,6 +6,7 @@
   <% } %>
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Rewards</span></a><% } %>
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progress</span></a><% } %>
+  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Goals</span></a><% } %>
   <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/avatars"><i class="bi bi-person-fill"></i><span>Profile</span></a>
   <form method="post" action="/auth/logout">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
