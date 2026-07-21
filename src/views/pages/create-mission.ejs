@@ -1,0 +1,53 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header">
+      <div><span class="eyebrow">NEW ADVENTURE</span><h1>Create a mission</h1><p>Turn a responsibility into a clear and motivating challenge.</p></div>
+      <a class="secondary-action" href="/missions/manage"><i class="bi bi-arrow-left"></i> Back to missions</a>
+    </header>
+
+    <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle"></i><%= error %></div><% } %>
+
+    <form class="mission-form" method="post" action="/missions">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <section class="form-card">
+        <div class="form-card-heading"><span>1</span><div><h2>Mission details</h2><p>Make the goal easy to understand.</p></div></div>
+        <div class="form-grid">
+          <label class="field field-wide">Mission title<input name="title" required maxlength="100" value="<%= values.title || '' %>" placeholder="Complete your math homework"></label>
+          <label class="field field-wide">Description<textarea name="description" required maxlength="500" rows="3" placeholder="What does Sofi need to accomplish?"><%= values.description || '' %></textarea></label>
+          <label class="field">Category<select name="category" required><option value="">Choose a category</option><% categories.forEach((category) => { %><option value="<%= category.value %>" <%= values.category === category.value ? 'selected' : '' %>><%= category.label %></option><% }) %></select></label>
+          <label class="field">Due date<input type="date" name="dueDate" min="<%= minimumDate %>" required value="<%= values.dueDate || minimumDate %>"></label>
+          <label class="field field-wide">Extra instructions <span>(optional)</span><textarea name="instructions" maxlength="1000" rows="2" placeholder="Add a helpful tip or acceptance criteria"><%= values.instructions || '' %></textarea></label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="form-card-heading"><span>2</span><div><h2>Challenge and rewards</h2><p>Difficulty suggests a balanced amount of XP and coins.</p></div></div>
+        <div class="difficulty-grid">
+          <% Object.entries(rewards).forEach(([difficulty, reward]) => { %>
+            <label class="difficulty-option"><input type="radio" name="difficulty" value="<%= difficulty %>" <%= (values.difficulty || 'easy') === difficulty ? 'checked' : '' %> required><span><strong><%= difficulty %></strong><small>+<%= reward.xp %> XP · <%= reward.coins %> coins</small></span></label>
+          <% }) %>
+        </div>
+        <div class="reward-fields">
+          <label class="field">XP reward<input id="xpReward" type="number" name="xpReward" min="1" max="500" required value="<%= values.xpReward || rewards[values.difficulty || 'easy'].xp %>"></label>
+          <label class="field">Coin reward<input id="coinReward" type="number" name="coinReward" min="0" max="100" required value="<%= values.coinReward || rewards[values.difficulty || 'easy'].coins %>"></label>
+          <p><i class="bi bi-info-circle"></i> XP builds progress and never gets spent. Coins can be exchanged for rewards.</p>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="form-card-heading"><span>3</span><div><h2>People</h2><p>Choose the player and who may validate the result.</p></div></div>
+        <div class="form-grid">
+          <label class="field field-wide">Assign to<select name="assignedTo" required><option value="">Choose a player</option><% players.forEach((item) => { %><option value="<%= item.user._id %>" <%= String(values.assignedTo || '') === String(item.user._id) ? 'selected' : '' %>><%= item.user.name %> (@<%= item.user.username %>)</option><% }) %></select></label>
+          <fieldset class="field field-wide validator-field"><legend>Who can validate?</legend><div class="validator-options"><% validators.forEach((item) => { const checked = [values.validators].flat().map(String).includes(String(item.user._id)); %><label><input type="checkbox" name="validators" value="<%= item.user._id %>" <%= checked ? 'checked' : '' %>><span><i class="bi bi-shield-check"></i><%= item.user.name %></span></label><% }) %></div></fieldset>
+        </div>
+      </section>
+
+      <div class="form-actions"><a class="secondary-action" href="/missions/manage">Cancel</a><button class="primary-action" type="submit"><i class="bi bi-stars"></i> Create mission</button></div>
+    </form>
+  </main>
+</div>
+<script>window.missionRewards = <%- JSON.stringify(rewards) %>;</script>
+<script src="/js/create-mission.js"></script>
+<%- include('../partials/footer') %>
