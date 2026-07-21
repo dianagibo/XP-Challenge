@@ -1,8 +1,13 @@
 <nav class="mobile-nav d-lg-none" aria-label="Mobile navigation">
   <a class="<%= activePage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-grid-fill"></i><span>Home</span></a>
-  <a href="#missions"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
-  <button type="button" aria-label="Create"><i class="bi bi-plus-lg"></i></button>
-  <a href="#"><i class="bi bi-gift-fill"></i><span>Rewards</span></a>
+  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.role === 'admin_player' ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
+  <% if (['admin_player', 'validator'].includes(currentUser?.role)) { %>
+    <a class="<%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Reviews</span></a>
+  <% } %>
+  <% if (currentUser?.role === 'player') { %><a class="<%= activePage === 'rewards' ? 'active' : '' %>" href="/rewards"><i class="bi bi-gift-fill"></i><span>Rewards</span></a><% } %>
   <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/avatars"><i class="bi bi-person-fill"></i><span>Profile</span></a>
+  <form method="post" action="/auth/logout">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button type="submit" aria-label="Log out"><i class="bi bi-box-arrow-left"></i><span>Log out</span></button>
+  </form>
 </nav>
-

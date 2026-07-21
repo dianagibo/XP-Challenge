@@ -33,6 +33,10 @@
         <div class="mission-instructions"><span>Instructions</span><p><%= activity.instructions %></p></div>
       <% } %>
 
+      <% if (activity.status === 'changes_requested') { %>
+        <div class="review-feedback changes"><i class="bi bi-arrow-repeat"></i><div><strong>Changes requested</strong><p><%= activity.reviewNote %></p></div></div>
+      <% } %>
+
       <% if (['assigned', 'changes_requested'].includes(activity.status)) { %>
         <form class="submission-form" method="post" action="/missions/<%= activity._id %>/submit">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -43,8 +47,10 @@
           <div class="submission-callout"><i class="bi bi-info-circle"></i><span>XP and coins will be added after Diana or Mom approves your mission.</span></div>
           <div class="form-actions"><a class="secondary-action" href="/">Not yet</a><button class="primary-action" type="submit"><i class="bi bi-send-check"></i> Send for approval</button></div>
         </form>
-      <% } else { %>
+      <% } else if (activity.status === 'pending_validation') { %>
         <div class="awaiting-card"><i class="bi bi-hourglass-split"></i><div><strong>Awaiting approval</strong><p>This mission has already been sent to your validators.</p></div></div>
+      <% } else { %>
+        <div class="review-feedback approved"><i class="bi bi-check-circle-fill"></i><div><strong>Mission approved</strong><p>You earned <%= activity.xpReward %> XP and <%= activity.coinReward %> coins. They are already reflected in your balance.</p></div></div>
       <% } %>
     </section>
   </main>

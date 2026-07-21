@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true, select: false },
   isActive: { type: Boolean, default: true },
   selectedAvatar: { type: String, default: 'nova' },
+  totalXp: { type: Number, default: 0, min: 0 },
+  coinBalance: { type: Number, default: 0, min: 0 },
   lastLoginAt: { type: Date, default: null }
 }, { timestamps: true });
 

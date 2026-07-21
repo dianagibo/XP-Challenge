@@ -1,0 +1,22 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header"><div><span class="eyebrow">VALIDATION CENTER</span><h1>Review missions</h1><p>Celebrate completed work or help Sofi make a small adjustment.</p></div></header>
+    <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
+    <% if (activities.length) { %>
+      <section class="manage-list">
+        <% activities.forEach(activity => { %>
+          <article class="manage-card review-card">
+            <div class="mission-icon icon-purple"><i class="bi bi-send-check-fill"></i></div>
+            <div class="manage-copy"><span class="mission-category"><%= activity.category.replace('_', ' ') %> · submitted by <%= activity.assignedTo.name %></span><h2><%= activity.title %></h2><p><%= activity.completionNote || 'No completion note was added.' %></p><div class="manage-meta"><span><i class="bi bi-clock"></i> <%= new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(activity.submittedAt) %></span><span><i class="bi bi-stars"></i> <%= activity.xpReward %> XP · <%= activity.coinReward %> coins</span></div></div>
+            <a class="primary-action" href="/missions/review/<%= activity._id %>"><i class="bi bi-eye"></i> Review</a>
+          </article>
+        <% }) %>
+      </section>
+    <% } else { %>
+      <section class="manage-empty"><span><i class="bi bi-check2-all"></i></span><div><h2>All caught up</h2><p>There are no missions waiting for your review.</p></div></section>
+    <% } %>
+  </main>
+</div>
+<%- include('../partials/footer') %>

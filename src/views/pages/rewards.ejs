@@ -1,0 +1,27 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header">
+      <div><span class="eyebrow">YOUR PROGRESS</span><h1>XP & coin history</h1><p>Every approved mission adds a permanent entry to your adventure.</p></div>
+      <a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back home</a>
+    </header>
+    <section class="reward-summary-grid">
+      <article class="reward-summary-card xp"><i class="bi bi-stars"></i><div><span>Total XP</span><strong><%= rewards.totalXp %></strong><small>Level <%= rewards.level %> · <%= rewards.currentXp %> / <%= rewards.nextLevelXp %> XP</small></div></article>
+      <article class="reward-summary-card coins"><i class="bi bi-coin"></i><div><span>Available coins</span><strong><%= rewards.coins %></strong><small>Ready for future rewards</small></div></article>
+    </section>
+    <section class="history-card">
+      <div class="section-heading"><div><span class="eyebrow">TRANSACTIONS</span><h2>Recent earnings</h2></div></div>
+      <% if (transactions.length) { %><div class="reward-history">
+        <% transactions.forEach((transaction) => { %><article class="reward-history-row">
+          <div class="mission-icon icon-purple"><i class="bi bi-trophy-fill"></i></div>
+          <div><strong><%= transaction.sourceActivity?.title || 'Approved mission' %></strong><p>Approved by <%= transaction.grantedBy?.name || 'a validator' %> · <%= new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(transaction.createdAt) %></p></div>
+          <div class="history-amount"><strong>+<%= transaction.xpAmount %> XP</strong><span><i class="bi bi-coin"></i> +<%= transaction.coinAmount %></span></div>
+        </article><% }) %>
+      </div><% } else { %>
+        <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>Your first reward is waiting</h3><p>Complete a mission and have it approved to start your history.</p></div></article>
+      <% } %>
+    </section>
+  </main>
+</div>
+<%- include('../partials/footer') %>
