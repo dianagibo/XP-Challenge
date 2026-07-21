@@ -1,4 +1,5 @@
 const Activity = require('./activity.model');
+const RecurringMission = require('./recurring-mission.model');
 const Membership = require('../families/membership.model');
 const rewardService = require('../rewards/reward.service');
 
@@ -29,39 +30,131 @@ async function createActivity(input, currentUser) {
   }
   if (!REWARDS[input.difficulty]) throw validationError('Select a valid difficulty.');
 
-  const dueDate = new Date(`${input.dueDate}T23:59:59`);
-  if (!input.dueDate || Number.isNaN(dueDate.getTime()) || dueDate < new Date()) {
-    throw validationError('Due date must be today or later.');
+  const frequency = ['once', 'daily', 'weekly'].includes(input.frequency) ? input.frequency : 'once';
+  const startDate = input.startDate || input.dueDate;
+  validateDateRange(startDate, input.endDate);
+
+  const weekdays = [...new Set([input.weekdays].flat().filter((value) => value !== undefined).map(Number))];
+  if (frequency === 'weekly' && (!weekdays.length || weekdays.some((day) => !Number.isInteger(day) || day < 0 || day > 6))) {
+    throw validationError('Choose at least one valid day for a weekly mission.');
   }
 
+  const common = {
+    family: currentUser.familyId, title: input.title, description: input.description,
+    category: input.category, difficulty: input.difficulty,
+    xpReward: input.xpReward, coinReward: input.coinReward,
+    instructions: input.instructions, assignedTo: input.assignedTo,
+    validators: selectedValidators, createdBy: currentUser.id
+  };
+
+  if (frequency !== 'once') {
+    const series = await RecurringMission.create({
+      ...common, frequency, weekdays: frequency === 'weekly' ? weekdays : [],
+      startDate, endDate: input.endDate || null
+    });
+    await materializeSeries(series);
+    return series;
+  }
+
+  const dueDate = endOfDay(startDate);
+
   return Activity.create({
-    family: currentUser.familyId,
-    title: input.title,
-    description: input.description,
-    category: input.category,
-    difficulty: input.difficulty,
-    xpReward: input.xpReward,
-    coinReward: input.coinReward,
+    ...common,
     dueDate,
-    instructions: input.instructions,
-    assignedTo: input.assignedTo,
-    validators: selectedValidators,
-    createdBy: currentUser.id
   });
 }
 
 async function listManagedActivities(familyId) {
-  return Activity.find({ family: familyId })
+  await materializeActiveSeries(familyId);
+  const [activities, recurringMissions] = await Promise.all([Activity.find({ family: familyId })
     .populate('assignedTo', 'name username selectedAvatar')
     .populate('validators', 'name')
     .sort({ createdAt: -1 })
-    .lean();
+    .lean(), RecurringMission.find({ family: familyId })
+      .populate('assignedTo', 'name username selectedAvatar')
+      .sort({ createdAt: -1 }).lean()]);
+  return { activities, recurringMissions };
 }
 
 async function listPlayerActivities(userId, familyId) {
+  await materializeActiveSeries(familyId);
   return Activity.find({ family: familyId, assignedTo: userId })
     .sort({ dueDate: 1, createdAt: -1 })
     .lean();
+}
+
+async function setRecurringMissionActive(seriesId, isActive, currentUser) {
+  if (!Activity.db.base.isValidObjectId(seriesId)) throw notFoundError();
+  const series = await RecurringMission.findOneAndUpdate(
+    { _id: seriesId, family: currentUser.familyId },
+    { $set: { isActive } }, { new: true }
+  );
+  if (!series) throw notFoundError();
+  if (isActive) {
+    await materializeSeries(series);
+  } else {
+    await Activity.deleteMany({
+      recurringMission: series._id,
+      occurrenceDate: { $gte: localDateString(new Date()) },
+      status: 'assigned'
+    });
+  }
+  return series;
+}
+
+async function materializeActiveSeries(familyId) {
+  const series = await RecurringMission.find({ family: familyId, isActive: true });
+  await Promise.all(series.map(materializeSeries));
+}
+
+async function materializeSeries(series) {
+  if (!series.isActive) return;
+  const today = localDateString(new Date());
+  const horizon = new Date();
+  horizon.setDate(horizon.getDate() + 14);
+  const until = series.endDate && series.endDate < localDateString(horizon)
+    ? series.endDate : localDateString(horizon);
+  const start = series.startDate;
+  if (start > until) return;
+
+  const occurrences = [];
+  for (let cursor = fromDateString(start); localDateString(cursor) <= until; cursor.setDate(cursor.getDate() + 1)) {
+    const occurrenceDate = localDateString(cursor);
+    if (series.frequency === 'weekly' && !series.weekdays.includes(cursor.getDay())) continue;
+    occurrences.push({
+      updateOne: {
+        filter: { recurringMission: series._id, occurrenceDate },
+        update: { $setOnInsert: {
+          family: series.family, title: series.title, description: series.description,
+          category: series.category, difficulty: series.difficulty,
+          xpReward: series.xpReward, coinReward: series.coinReward,
+          instructions: series.instructions, assignedTo: series.assignedTo,
+          validators: series.validators, createdBy: series.createdBy,
+          dueDate: endOfDay(occurrenceDate), recurringMission: series._id, occurrenceDate
+        } }, upsert: true
+      }
+    });
+  }
+  if (occurrences.length) await Activity.bulkWrite(occurrences, { ordered: false });
+}
+
+function validateDateRange(startDate, endDate) {
+  const today = localDateString(new Date());
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(startDate || '')) || startDate < today) {
+    throw validationError('Start date must be today or later.');
+  }
+  if (endDate && (!/^\d{4}-\d{2}-\d{2}$/.test(endDate) || endDate < startDate)) {
+    throw validationError('End date must be on or after the start date.');
+  }
+}
+
+function fromDateString(value) { return new Date(`${value}T12:00:00`); }
+function endOfDay(value) { return new Date(`${value}T23:59:59`); }
+function localDateString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 async function getPlayerActivity(activityId, currentUser) {
@@ -200,5 +293,6 @@ module.exports = {
   submitForApproval,
   listReviewableActivities,
   getReviewableActivity,
-  reviewActivity
+  reviewActivity,
+  setRecurringMissionActive
 };

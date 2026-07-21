@@ -1,0 +1,31 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header">
+      <div><span class="eyebrow">MY ADVENTURE</span><h1>My progress</h1><p>Celebrate what you have built. Missing a day never removes XP, coins or achievements.</p></div>
+      <a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back home</a>
+    </header>
+    <section class="progress-stats-grid">
+      <article class="progress-stat-card purple"><i class="bi bi-stars"></i><span>Total XP</span><strong><%= progress.stats.totalXp %></strong><small>Level <%= progress.stats.level %> · <%= progress.stats.title %></small></article>
+      <article class="progress-stat-card orange"><i class="bi bi-fire"></i><span>Current streak</span><strong><%= progress.stats.currentStreak %> days</strong><small>Personal best: <%= progress.stats.bestStreak %> days</small></article>
+      <article class="progress-stat-card green"><i class="bi bi-check-circle-fill"></i><span>Approved missions</span><strong><%= progress.stats.approvedMissions %></strong><small>Every approval counts</small></article>
+    </section>
+    <section class="history-card level-progress-card">
+      <div class="section-heading"><div><span class="eyebrow">NEXT LEVEL</span><h2><%= progress.stats.currentXp %> / <%= progress.stats.nextLevelXp %> XP</h2></div><strong><%= progress.stats.nextLevelXp - progress.stats.currentXp %> XP to go</strong></div>
+      <div class="progress"><div class="progress-bar" style="width: <%= Math.round((progress.stats.currentXp / progress.stats.nextLevelXp) * 100) %>%"></div></div>
+    </section>
+    <section class="history-card">
+      <div class="section-heading"><div><span class="eyebrow">ACHIEVEMENTS</span><h2>Your badge collection</h2></div><span><%= progress.achievements.filter(item => item.unlocked).length %> / <%= progress.achievements.length %> unlocked</span></div>
+      <div class="achievement-grid">
+        <% progress.achievements.forEach((achievement) => { %>
+          <article class="achievement-card <%= achievement.unlocked ? 'unlocked' : 'locked' %>">
+            <div class="achievement-icon"><i class="bi <%= achievement.unlocked ? achievement.icon : 'bi-lock-fill' %>"></i></div>
+            <div><h3><%= achievement.name %></h3><p><%= achievement.description %></p><small><%= achievement.unlocked ? `Unlocked ${new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(achievement.unlockedAt)}` : 'Still to discover' %></small></div>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+  </main>
+</div>
+<%- include('../partials/footer') %>

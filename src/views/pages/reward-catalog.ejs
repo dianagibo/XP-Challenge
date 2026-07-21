@@ -1,0 +1,48 @@
+<%- include('../partials/head') %>
+<% const icons = { gift: 'bi-gift-fill', movie: 'bi-film', game: 'bi-controller', treat: 'bi-cup-straw', outing: 'bi-map-fill', choice: 'bi-stars' }; %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header">
+      <div><span class="eyebrow"><%= isAdmin ? 'FAMILY REWARDS' : 'SPEND YOUR COINS' %></span><h1><%= isAdmin ? 'Reward catalog' : 'Choose your next reward' %></h1><p><%= isAdmin ? 'Create meaningful rewards and keep track of every delivery.' : `You have ${rewards.coins} coins available.` %></p></div>
+      <a class="secondary-action" href="/rewards"><i class="bi bi-clock-history"></i> XP & coin history</a>
+    </header>
+    <% if (flash) { %><div class="<%= flash.type === 'error' ? 'form-alert' : 'success-alert' %>"><i class="bi <%= flash.type === 'error' ? 'bi-exclamation-circle' : 'bi-check-circle-fill' %>"></i><%= flash.message %></div><% } %>
+    <% if (isAdmin) { %>
+      <details class="catalog-create-card" <%= !catalog.length ? 'open' : '' %>>
+        <summary><span><i class="bi bi-plus-circle-fill"></i> Add a reward</span><small>Create an option Sofi can redeem with her coins.</small></summary>
+        <form method="post" action="/reward-catalog" class="catalog-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="field">Reward name<input name="name" required maxlength="80" placeholder="Movie night"></label>
+          <label class="field">Coin cost<input name="coinCost" type="number" required min="1" step="1" placeholder="20"></label>
+          <label class="field">Icon<select name="icon" required><option value="gift">Gift</option><option value="movie">Movie</option><option value="game">Game</option><option value="treat">Treat</option><option value="outing">Outing</option><option value="choice">Sofi's choice</option></select></label>
+          <label class="field field-wide">Description<textarea name="description" rows="2" maxlength="300" placeholder="What this reward includes"></textarea></label>
+          <div class="form-actions field-wide"><button class="primary-action" type="submit"><i class="bi bi-plus-lg"></i> Add to catalog</button></div>
+        </form>
+      </details>
+    <% } else { %><section class="catalog-balance"><i class="bi bi-coin"></i><div><span>Available balance</span><strong><%= rewards.coins %> coins</strong></div></section><% } %>
+    <section class="catalog-section">
+      <div class="section-heading"><div><span class="eyebrow">CATALOG</span><h2><%= isAdmin ? 'Available rewards' : 'Pick something worth earning' %></h2></div></div>
+      <% if (catalog.length) { %><div class="catalog-grid">
+        <% catalog.forEach((reward) => { const canAfford = rewards.coins >= reward.coinCost; %><article class="catalog-card <%= reward.isActive ? '' : 'is-inactive' %>">
+          <div class="catalog-icon"><i class="bi <%= icons[reward.icon] || icons.gift %>"></i></div>
+          <div class="catalog-copy"><div class="catalog-title"><h3><%= reward.name %></h3><span><i class="bi bi-coin"></i> <%= reward.coinCost %></span></div><p><%= reward.description || 'A special reward for a mission well done.' %></p></div>
+          <% if (isAdmin) { %><form method="post" action="/reward-catalog/<%= reward._id %>/toggle"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="secondary-action catalog-action" type="submit"><i class="bi <%= reward.isActive ? 'bi-pause-circle' : 'bi-play-circle' %>"></i> <%= reward.isActive ? 'Deactivate' : 'Activate' %></button></form>
+          <% } else { %><form method="post" action="/reward-catalog/<%= reward._id %>/redeem"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="primary-action catalog-action" type="submit" <%= canAfford ? '' : 'disabled' %>><i class="bi bi-bag-heart-fill"></i> <%= canAfford ? 'Redeem reward' : 'Keep earning' %></button></form><% } %>
+        </article><% }) %>
+      </div><% } else { %><article class="manage-empty"><span><i class="bi bi-gift"></i></span><div><h2>No rewards yet</h2><p><%= isAdmin ? 'Add the first reward to give Sofi something exciting to work toward.' : 'Diana is preparing the first rewards for you.' %></p></div></article><% } %>
+    </section>
+    <section class="history-card redemption-section">
+      <div class="section-heading"><div><span class="eyebrow">REDEMPTIONS</span><h2><%= isAdmin ? 'Delivery queue' : 'My redeemed rewards' %></h2></div></div>
+      <% if (redemptions.length) { %><div class="reward-history">
+        <% redemptions.forEach((redemption) => { %><article class="redemption-row">
+          <div class="mission-icon <%= redemption.status === 'delivered' ? 'icon-mint' : 'icon-purple' %>"><i class="bi <%= redemption.status === 'delivered' ? 'bi-check-lg' : icons[redemption.reward?.icon] || icons.gift %>"></i></div>
+          <div class="redemption-copy"><strong><%= redemption.reward?.name || 'Reward' %></strong><p><%= isAdmin ? `${redemption.player?.name || 'Player'} · ` : '' %><%= new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(redemption.createdAt) %> · <%= redemption.coinCost %> coins</p></div>
+          <span class="status-chip status-<%= redemption.status %>"><%= redemption.status === 'pending_delivery' ? 'Pending delivery' : 'Delivered' %></span>
+          <% if (isAdmin && redemption.status === 'pending_delivery') { %><form method="post" action="/reward-catalog/redemptions/<%= redemption._id %>/deliver"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="approve-action" type="submit"><i class="bi bi-check2"></i> Mark delivered</button></form><% } %>
+        </article><% }) %>
+      </div><% } else { %><article class="mission-empty"><i class="bi bi-bag-heart"></i><div><h3>No redemptions yet</h3><p><%= isAdmin ? 'New requests will appear here for delivery.' : 'Your redeemed rewards will appear here.' %></p></div></article><% } %>
+    </section>
+  </main>
+</div>
+<%- include('../partials/footer') %>

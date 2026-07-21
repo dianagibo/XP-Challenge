@@ -1,0 +1,19 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header"><div><span class="eyebrow">FAMILY OVERVIEW</span><h1>Sofi's progress</h1><p>A positive overview of consistency, growth and achievements.</p></div><a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back home</a></header>
+    <% if (players.length) { players.forEach((progress) => { %>
+      <section class="family-progress-card">
+        <div class="family-progress-heading"><div><span class="eyebrow">PLAYER</span><h2><%= progress.player.name %></h2></div><span class="level-chip"><i class="bi bi-stars"></i> Level <%= progress.stats.level %></span></div>
+        <div class="progress-stats-grid compact">
+          <article class="progress-stat-card purple"><span>Total XP</span><strong><%= progress.stats.totalXp %></strong></article>
+          <article class="progress-stat-card orange"><span>Current / best streak</span><strong><%= progress.stats.currentStreak %> / <%= progress.stats.bestStreak %> days</strong></article>
+          <article class="progress-stat-card green"><span>Approved missions</span><strong><%= progress.stats.approvedMissions %></strong></article>
+        </div>
+        <div class="family-badges"><strong>Achievements</strong><div><% progress.achievements.forEach((achievement) => { %><span class="mini-badge <%= achievement.unlocked ? 'earned' : '' %>" title="<%= achievement.name %>"><i class="bi <%= achievement.unlocked ? achievement.icon : 'bi-lock-fill' %>"></i><%= achievement.name %></span><% }) %></div></div>
+      </section>
+    <% }) } else { %><article class="mission-empty"><i class="bi bi-people"></i><div><h3>No players yet</h3><p>Player progress will appear here.</p></div></article><% } %>
+  </main>
+</div>
+<%- include('../partials/footer') %>
