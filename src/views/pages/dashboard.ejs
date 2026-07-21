@@ -66,36 +66,6 @@
           <article class="mission-empty"><i class="bi bi-flag"></i><div><h3>No missions yet</h3><p>Your next adventure will appear here.</p></div></article>
         <% } %>
 
-        <% if (!activities.length && !canManageMissions) { %><div class="demo-section"><span class="eyebrow">PREVIEW</span><h3>Example missions</h3></div><% } %>
-        <% if (!activities.length && !canManageMissions) { %><article class="featured-mission">
-          <div class="mission-icon"><i class="bi <%= game.featuredMission.icon %>"></i></div>
-          <div class="mission-copy">
-            <span class="mission-type">FEATURED MISSION · <%= game.featuredMission.difficulty.toUpperCase() %></span>
-            <h3><%= game.featuredMission.title %></h3>
-            <p><%= game.featuredMission.description %></p>
-            <div class="reward-list"><span><i class="bi bi-stars"></i> +<%= game.featuredMission.xp %> XP</span><span><i class="bi bi-coin"></i> +<%= game.featuredMission.coins %></span></div>
-          </div>
-          <button class="btn-complete demo-action" type="button"><i class="bi bi-check2"></i><span>Complete</span></button>
-        </article>
-
-        <div class="mission-list">
-          <% game.missions.forEach((mission) => { %>
-            <article class="mission-card <%= mission.status === 'completed' ? 'is-complete' : '' %>">
-              <div class="mission-icon icon-<%= mission.color %>"><i class="bi <%= mission.icon %>"></i></div>
-              <div class="mission-copy">
-                <span class="mission-category"><%= mission.category %></span>
-                <h3><%= mission.title %></h3>
-                <p><%= mission.description %></p>
-              </div>
-              <div class="mission-reward"><span>+<%= mission.xp %> XP</span><span><i class="bi bi-coin"></i> <%= mission.coins %></span></div>
-              <% if (mission.status === 'completed') { %>
-                <span class="complete-check"><i class="bi bi-check-lg"></i></span>
-              <% } else { %>
-                <button class="round-action demo-action" type="button" aria-label="Complete <%= mission.title %>"><i class="bi bi-chevron-right"></i></button>
-              <% } %>
-            </article>
-          <% }) %>
-        </div><% } %>
       </section>
 
       <aside class="right-column">
@@ -109,15 +79,20 @@
           </div>
         </article>
 
-        <article class="team-card">
-          <div class="team-header"><span><i class="bi bi-people-fill"></i></span><small><%= game.teamMission.daysLeft %> days left</small></div>
-          <span class="eyebrow">TEAM MISSION</span>
-          <h2><%= game.teamMission.title %></h2>
-          <p><%= game.teamMission.description %></p>
-          <div class="team-progress-label"><span>Team progress</span><strong><%= game.teamMission.progress %>%</strong></div>
-          <div class="progress"><div class="progress-bar" style="width: <%= game.teamMission.progress %>%"></div></div>
-          <div class="team-footer"><div class="avatar-stack"><span>D</span><span>S</span></div><strong><i class="bi bi-stars"></i> +<%= game.teamMission.xp %> XP each</strong></div>
-        </article>
+        <% if (activeGoal) { %><a class="team-card dashboard-goal" href="/weekly-goals">
+          <div class="team-header"><span><i class="bi bi-bullseye"></i></span><small><%= activeGoal.endDate %></small></div>
+          <span class="eyebrow">WEEKLY GOAL</span>
+          <h2><%= activeGoal.title %></h2>
+          <p><%= activeGoal.completedCount %> of <%= activeGoal.targetCount %> approved missions</p>
+          <div class="team-progress-label"><span>Weekly progress</span><strong><%= activeGoal.percent %>%</strong></div>
+          <div class="progress"><div class="progress-bar" style="width: <%= activeGoal.percent %>%"></div></div>
+          <div class="team-footer"><strong><i class="bi bi-stars"></i> +<%= activeGoal.xpBonus %> XP · <i class="bi bi-coin"></i> +<%= activeGoal.coinBonus %></strong></div>
+        </a><% } else { %><a class="team-card dashboard-goal" href="/weekly-goals">
+          <div class="team-header"><span><i class="bi bi-bullseye"></i></span></div>
+          <span class="eyebrow">WEEKLY GOAL</span>
+          <h2>No active goal</h2>
+          <p><%= canManageMissions ? 'Create a short goal to celebrate Sofi’s progress this week.' : 'Your next weekly goal will appear here.' %></p>
+        </a><% } %>
 
         <a class="profile-teaser" href="/avatars">
           <div><span class="eyebrow">MAKE IT YOURS</span><h3>Choose your avatar</h3><p>New characters unlock as you level up.</p></div>

@@ -7,4 +7,8 @@ async function connectDatabase() {
   console.log('MongoDB connection established');
 }
 
-module.exports = connectDatabase;
+async function disconnectDatabase() {
+  if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
+}
+
+module.exports = { connectDatabase, disconnectDatabase };

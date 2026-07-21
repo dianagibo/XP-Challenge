@@ -1,5 +1,6 @@
 const path = require('node:path');
 const express = require('express');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
 const helmet = require('helmet');
@@ -7,12 +8,15 @@ const homeRoutes = require('./routes/home.routes');
 const authRoutes = require('./modules/auth/auth.routes');
 const activityRoutes = require('./modules/activities/activity.routes');
 const rewardRoutes = require('./modules/rewards/reward.routes');
+const weeklyGoalRoutes = require('./modules/goals/weekly-goal.routes');
 const { exposeCurrentUser } = require('./middleware/authentication');
 const { notFound, errorHandler } = require('./middleware/error-handler');
 const csrfProtection = require('./middleware/csrf');
 const environment = require('./config/environment');
 
 const app = express();
+
+if (environment.isProduction) app.set('trust proxy', 1);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -21,6 +25,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet({ contentSecurityPolicy: false }));
+app.get('/health', (request, response) => {
+  const databaseReady = mongoose.connection.readyState === 1;
+  response.status(databaseReady ? 200 : 503).json({
+    status: databaseReady ? 'ok' : 'unavailable',
+    database: databaseReady ? 'connected' : 'disconnected'
+  });
+});
 app.use(session({
   name: 'xp.sid',
   secret: environment.sessionSecret,
@@ -40,6 +51,7 @@ app.use(csrfProtection);
 app.use('/auth', authRoutes);
 app.use('/missions', activityRoutes);
 app.use('/reward-catalog', rewardRoutes);
+app.use('/weekly-goals', weeklyGoalRoutes);
 app.use('/', homeRoutes);
 app.use(notFound);
 app.use(errorHandler);

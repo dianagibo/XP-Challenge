@@ -1,7 +1,6 @@
 require('dotenv').config({ quiet: true });
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
-const connectDatabase = require('../config/database');
+const { connectDatabase, disconnectDatabase } = require('../config/database');
 const User = require('../modules/users/user.model');
 const Family = require('../modules/families/family.model');
 const Membership = require('../modules/families/membership.model');
@@ -42,9 +41,9 @@ async function seed() {
 }
 
 seed()
-  .then(() => mongoose.disconnect())
+  .then(() => disconnectDatabase())
   .catch(async (error) => {
     console.error('Seed failed:', error.message);
-    await mongoose.disconnect();
+    await disconnectDatabase();
     process.exit(1);
   });

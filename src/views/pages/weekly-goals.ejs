@@ -1,0 +1,40 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header"><div><span class="eyebrow">SHORT-TERM MOTIVATION</span><h1>Weekly goals</h1><p><%= currentUser.role === 'admin_player' ? "Set a positive target and celebrate Sofi's consistency." : 'Follow your progress and unlock a bonus when you reach the target.' %></p></div><a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back home</a></header>
+    <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
+    <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle-fill"></i><%= error %></div><% } %>
+    <% if (currentUser.role === 'admin_player') { %>
+      <details class="catalog-create-card" <%= error ? 'open' : '' %>>
+        <summary><span><i class="bi bi-plus-circle-fill"></i>Create weekly goal</span><small>Target, category and bonus</small></summary>
+        <form class="goal-form" method="post" action="/weekly-goals">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="field field-wide">Goal name<input name="title" maxlength="100" required value="<%= values.title || '' %>" placeholder="Recovery week"></label>
+          <label class="field">Player<select name="player" required><option value="">Select player</option><% players.forEach((player) => { %><option value="<%= player._id %>" <%= String(values.player || '') === String(player._id) ? 'selected' : '' %>><%= player.name %></option><% }) %></select></label>
+          <label class="field">Category<select name="category" required><% categories.forEach((category) => { %><option value="<%= category %>" <%= (values.category || 'all') === category ? 'selected' : '' %>><%= category === 'all' ? 'All missions' : category.replace('_', ' ') %></option><% }) %></select></label>
+          <label class="field">Approved missions<input type="number" name="targetCount" min="1" max="50" required value="<%= values.targetCount || 5 %>"></label>
+          <label class="field">XP bonus<input type="number" name="xpBonus" min="0" max="1000" required value="<%= values.xpBonus ?? 50 %>"></label>
+          <label class="field">Coin bonus<input type="number" name="coinBonus" min="0" max="500" required value="<%= values.coinBonus ?? 20 %>"></label>
+          <label class="field">Start date<input type="date" name="startDate" min="<%= today %>" required value="<%= values.startDate || today %>"></label>
+          <label class="field">End date<input type="date" name="endDate" min="<%= today %>" required value="<%= values.endDate || '' %>"></label>
+          <div class="form-actions field-wide"><button class="primary-action" type="submit"><i class="bi bi-bullseye"></i>Create goal</button></div>
+        </form>
+      </details>
+    <% } %>
+    <section class="goal-grid">
+      <% goals.forEach((goal) => { %>
+        <article class="goal-card <%= goal.status %>">
+          <div class="goal-heading"><div><span class="status-chip status-<%= goal.status %>"><%= goal.status %></span><h2><%= goal.title %></h2><p><%= goal.category === 'all' ? 'All missions' : goal.category.replace('_', ' ') %> · <%= goal.startDate %> to <%= goal.endDate %></p></div><i class="bi <%= goal.status === 'completed' ? 'bi-trophy-fill' : 'bi-bullseye' %>"></i></div>
+          <% if (currentUser.role === 'admin_player') { %><small class="goal-player">For <strong><%= goal.player.name %></strong></small><% } %>
+          <div class="goal-count"><strong><%= goal.completedCount %></strong><span>of <%= goal.targetCount %> approved missions</span></div>
+          <div class="goal-progress"><div style="width:<%= goal.percent %>%"></div></div>
+          <div class="goal-footer"><span><i class="bi bi-lightning-charge-fill"></i> +<%= goal.xpBonus %> XP</span><span><i class="bi bi-coin"></i> +<%= goal.coinBonus %> coins</span><strong><%= goal.percent %>%</strong></div>
+          <% if (goal.status === 'completed') { %><div class="goal-complete"><i class="bi bi-stars"></i> Goal reached! Bonus delivered.</div><% } else if (goal.status === 'expired') { %><div class="goal-expired">Week finished. Nothing was lost—try again with a new goal.</div><% } %>
+        </article>
+      <% }) %>
+      <% if (!goals.length) { %><article class="mission-empty"><i class="bi bi-bullseye"></i><div><h3>No weekly goals yet</h3><p><%= currentUser.role === 'admin_player' ? 'Create the first positive target for Sofi.' : 'Your next weekly challenge will appear here.' %></p></div></article><% } %>
+    </section>
+  </main>
+</div>
+<%- include('../partials/footer') %>

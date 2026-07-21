@@ -2,6 +2,7 @@ const Activity = require('./activity.model');
 const RecurringMission = require('./recurring-mission.model');
 const Membership = require('../families/membership.model');
 const rewardService = require('../rewards/reward.service');
+const weeklyGoalService = require('../goals/weekly-goal.service');
 
 const REWARDS = Object.freeze({
   easy: { xp: 10, coins: 2 },
@@ -261,6 +262,7 @@ async function reviewActivity(activityId, decision, reviewNote, currentUser) {
         const transaction = await rewardService.grantMissionRewards(activity, currentUser.id, session);
         activity.rewardsGrantedAt = new Date();
         activity.rewardTransaction = transaction._id;
+        await weeklyGoalService.applyApprovedMission(activity, session);
       }
 
       reviewedActivity = await activity.save({ session });
