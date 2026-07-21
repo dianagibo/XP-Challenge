@@ -27,15 +27,28 @@ async function create(request, response, next) {
 
 async function showManage(request, response, next) {
   try {
-    const activities = await activityService.listManagedActivities(request.session.user.familyId);
+    const { activities, recurringMissions } = await activityService.listManagedActivities(request.session.user.familyId);
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/manage-missions', {
-      pageTitle: 'Manage missions', activePage: 'missions', activities, flash
+      pageTitle: 'Manage missions', activePage: 'missions', activities, recurringMissions, flash
     });
   } catch (error) {
     return next(error);
   }
+}
+
+async function setRecurringActive(request, response, next) {
+  try {
+    await activityService.setRecurringMissionActive(
+      request.params.seriesId, request.body.action === 'resume', request.session.user
+    );
+    request.session.flash = {
+      type: 'success',
+      message: request.body.action === 'resume' ? 'Recurring mission resumed.' : 'Recurring mission paused.'
+    };
+    return response.redirect('/missions/manage');
+  } catch (error) { return next(error); }
 }
 
 async function showDetails(request, response, next) {
@@ -140,5 +153,5 @@ async function renderCreate(response, currentUser, values = {}, error = null, st
 
 module.exports = {
   showCreate, create, showManage, showDetails, submitForApproval,
-  showReviewQueue, showReviewDetails, review
+  showReviewQueue, showReviewDetails, review, setRecurringActive
 };

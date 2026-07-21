@@ -19,9 +19,12 @@ async function showDashboard(request, response, next) {
     game.player.avatar = request.session.user.avatar || game.player.avatar;
     const rewards = await rewardService.getPlayerRewards(request.session.user.id);
     Object.assign(game.player, rewards);
-    const activities = request.session.user.role === 'player'
-      ? await activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId)
-      : await activityService.listManagedActivities(request.session.user.familyId);
+    let activities;
+    if (request.session.user.role === 'player') {
+      activities = await activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId);
+    } else {
+      ({ activities } = await activityService.listManagedActivities(request.session.user.familyId));
+    }
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/dashboard', {

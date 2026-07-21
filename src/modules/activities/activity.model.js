@@ -29,9 +29,15 @@ const activitySchema = new mongoose.Schema({
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   reviewedAt: { type: Date, default: null },
   rewardsGrantedAt: { type: Date, default: null },
-  rewardTransaction: { type: mongoose.Schema.Types.ObjectId, ref: 'RewardTransaction', default: null }
+  rewardTransaction: { type: mongoose.Schema.Types.ObjectId, ref: 'RewardTransaction', default: null },
+  recurringMission: { type: mongoose.Schema.Types.ObjectId, ref: 'RecurringMission', default: null, index: true },
+  occurrenceDate: { type: String, default: null }
 }, { timestamps: true });
 
 activitySchema.index({ family: 1, createdAt: -1 });
+activitySchema.index(
+  { recurringMission: 1, occurrenceDate: 1 },
+  { unique: true, partialFilterExpression: { recurringMission: { $type: 'objectId' }, occurrenceDate: { $type: 'string' } } }
+);
 
 module.exports = mongoose.model('Activity', activitySchema);
