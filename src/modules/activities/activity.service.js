@@ -63,10 +63,70 @@ async function listPlayerActivities(userId, familyId) {
     .lean();
 }
 
+async function getPlayerActivity(activityId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+
+  const activity = await Activity.findOne({
+    _id: activityId,
+    family: currentUser.familyId,
+    assignedTo: currentUser.id
+  })
+    .populate('validators', 'name')
+    .lean();
+
+  if (!activity) throw notFoundError();
+  return activity;
+}
+
+async function submitForApproval(activityId, completionNote, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+
+  const note = String(completionNote || '').trim();
+  if (note.length > 500) throw validationError('Your note must be 500 characters or fewer.');
+
+  const activity = await Activity.findOneAndUpdate({
+    _id: activityId,
+    family: currentUser.familyId,
+    assignedTo: currentUser.id,
+    status: { $in: ['assigned', 'changes_requested'] }
+  }, {
+    $set: {
+      status: 'pending_validation',
+      completionNote: note,
+      submittedAt: new Date()
+    }
+  }, { new: true });
+
+  if (activity) return activity;
+
+  const existing = await Activity.findOne({
+    _id: activityId,
+    family: currentUser.familyId,
+    assignedTo: currentUser.id
+  }).select('status');
+
+  if (!existing) throw notFoundError();
+  throw validationError('This mission cannot be sent for approval in its current status.');
+}
+
 function validationError(message) {
   const error = new Error(message);
   error.status = 400;
   return error;
 }
 
-module.exports = { REWARDS, getFamilyMembers, createActivity, listManagedActivities, listPlayerActivities };
+function notFoundError() {
+  const error = new Error('Mission not found.');
+  error.status = 404;
+  return error;
+}
+
+module.exports = {
+  REWARDS,
+  getFamilyMembers,
+  createActivity,
+  listManagedActivities,
+  listPlayerActivities,
+  getPlayerActivity,
+  submitForApproval
+};
