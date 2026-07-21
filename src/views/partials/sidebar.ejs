@@ -8,7 +8,7 @@
     <a class="nav-link <%= activePage === 'home' ? 'active' : '' %>" href="/">
       <i class="bi bi-grid-fill"></i><span>Home</span>
     </a>
-    <a class="nav-link" href="#missions"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
+    <a class="nav-link <%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.role === 'admin_player' ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
     <a class="nav-link" href="#"><i class="bi bi-gift-fill"></i><span>Rewards</span></a>
     <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/avatars">
       <i class="bi bi-person-fill"></i><span>Profile</span>

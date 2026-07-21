@@ -1,0 +1,25 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header">
+      <div><span class="eyebrow">MISSION CONTROL</span><h1>Manage missions</h1><p>Follow every responsibility from assignment to approval.</p></div>
+      <a class="primary-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Create mission</a>
+    </header>
+    <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
+    <% if (!activities.length) { %>
+      <section class="manage-empty"><span><i class="bi bi-map"></i></span><h2>Your mission board is ready</h2><p>Create the first responsibility and it will appear on Sofi's dashboard immediately.</p><a class="primary-action" href="/missions/create">Create the first mission</a></section>
+    <% } else { %>
+      <section class="manage-list">
+        <% activities.forEach((mission) => { %>
+          <article class="manage-card">
+            <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
+            <div class="manage-copy"><div><span class="mission-category"><%= mission.category.replace('_', ' ') %> · <%= mission.difficulty %></span><h2><%= mission.title %></h2></div><p><%= mission.description %></p><div class="manage-meta"><span><i class="bi bi-person"></i><%= mission.assignedTo.name %></span><span><i class="bi bi-calendar3"></i><%= new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(mission.dueDate) %></span><span><i class="bi bi-shield-check"></i><%= mission.validators.map(item => item.name).join(' or ') %></span></div></div>
+            <div class="manage-reward"><strong>+<%= mission.xpReward %> XP</strong><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span><span class="status-chip status-<%= mission.status %>"><%= mission.status.replace('_', ' ') %></span></div>
+          </article>
+        <% }) %>
+      </section>
+    <% } %>
+  </main>
+</div>
+<%- include('../partials/footer') %>

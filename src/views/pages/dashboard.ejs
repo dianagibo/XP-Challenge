@@ -42,10 +42,27 @@
       <section class="main-column">
         <div class="section-heading" id="missions">
           <div><span class="eyebrow">TODAY'S ADVENTURE</span><h2>Your missions</h2></div>
-          <span class="daily-counter"><strong><%= game.dailyProgress.completed %></strong>/<%= game.dailyProgress.total %> complete</span>
+          <% if (canManageMissions) { %><a class="text-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Create mission</a><% } %>
         </div>
+        <% if (activities.length) { %>
+          <div class="mission-list real-missions">
+          <% activities.forEach((mission) => { %>
+            <article class="mission-card">
+              <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
+              <div class="mission-copy"><span class="mission-category"><%= mission.category.replace('_', ' ') %> · <%= mission.difficulty %></span><h3><%= mission.title %></h3><p><%= mission.description %></p></div>
+              <div class="mission-reward"><span>+<%= mission.xpReward %> XP</span><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span></div>
+              <span class="status-chip status-<%= mission.status %>"><%= mission.status.replace('_', ' ') %></span>
+            </article>
+          <% }) %>
+          </div>
+        <% } else if (canManageMissions) { %>
+          <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>Ready to create the first mission?</h3><p>Assign a meaningful challenge to Sofi and choose its rewards.</p></div><a class="primary-action" href="/missions/create">Create mission</a></article>
+        <% } else { %>
+          <article class="mission-empty"><i class="bi bi-flag"></i><div><h3>No missions yet</h3><p>Your next adventure will appear here.</p></div></article>
+        <% } %>
 
-        <article class="featured-mission">
+        <% if (!activities.length && !canManageMissions) { %><div class="demo-section"><span class="eyebrow">PREVIEW</span><h3>Example missions</h3></div><% } %>
+        <% if (!activities.length && !canManageMissions) { %><article class="featured-mission">
           <div class="mission-icon"><i class="bi <%= game.featuredMission.icon %>"></i></div>
           <div class="mission-copy">
             <span class="mission-type">FEATURED MISSION · <%= game.featuredMission.difficulty.toUpperCase() %></span>
@@ -73,7 +90,7 @@
               <% } %>
             </article>
           <% }) %>
-        </div>
+        </div><% } %>
       </section>
 
       <aside class="right-column">
@@ -106,4 +123,3 @@
   </main>
 </div>
 <%- include('../partials/footer') %>
-
