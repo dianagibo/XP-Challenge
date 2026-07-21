@@ -15,9 +15,11 @@ async function showDashboard(request, response, next) {
     const activities = request.session.user.role === 'player'
       ? await activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId)
       : await activityService.listManagedActivities(request.session.user.familyId);
+    const flash = request.session.flash;
+    delete request.session.flash;
     return response.render('pages/dashboard', {
       pageTitle: 'My adventure', activePage: 'home', game, activities,
-      canManageMissions: request.session.user.role === 'admin_player'
+      canManageMissions: request.session.user.role === 'admin_player', flash
     });
   } catch (error) {
     return next(error);

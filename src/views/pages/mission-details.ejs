@@ -1,0 +1,52 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header">
+      <div>
+        <span class="eyebrow">MISSION DETAILS</span>
+        <h1><%= activity.title %></h1>
+        <p>Review the mission and send it when you are ready.</p>
+      </div>
+      <a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back to missions</a>
+    </header>
+
+    <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle-fill"></i><%= error %></div><% } %>
+
+    <section class="mission-detail-card">
+      <div class="mission-detail-heading">
+        <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
+        <div>
+          <span class="mission-category"><%= activity.category.replace('_', ' ') %> · <%= activity.difficulty %></span>
+          <h2><%= activity.title %></h2>
+          <p><%= activity.description %></p>
+        </div>
+        <div class="detail-rewards"><strong>+<%= activity.xpReward %> XP</strong><span><i class="bi bi-coin"></i> <%= activity.coinReward %></span></div>
+      </div>
+
+      <div class="mission-detail-grid">
+        <div><span>Due date</span><strong><i class="bi bi-calendar3"></i> <%= new Intl.DateTimeFormat('en', { dateStyle: 'long' }).format(activity.dueDate) %></strong></div>
+        <div><span>Validators</span><strong><i class="bi bi-shield-check"></i> <%= activity.validators.map(item => item.name).join(' or ') %></strong></div>
+      </div>
+
+      <% if (activity.instructions) { %>
+        <div class="mission-instructions"><span>Instructions</span><p><%= activity.instructions %></p></div>
+      <% } %>
+
+      <% if (['assigned', 'changes_requested'].includes(activity.status)) { %>
+        <form class="submission-form" method="post" action="/missions/<%= activity._id %>/submit">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="field">
+            Completion note <span>Optional · Tell your validator how it went.</span>
+            <textarea name="completionNote" rows="4" maxlength="500" placeholder="I completed this mission by..."><%= values.completionNote || '' %></textarea>
+          </label>
+          <div class="submission-callout"><i class="bi bi-info-circle"></i><span>XP and coins will be added after Diana or Mom approves your mission.</span></div>
+          <div class="form-actions"><a class="secondary-action" href="/">Not yet</a><button class="primary-action" type="submit"><i class="bi bi-send-check"></i> Send for approval</button></div>
+        </form>
+      <% } else { %>
+        <div class="awaiting-card"><i class="bi bi-hourglass-split"></i><div><strong>Awaiting approval</strong><p>This mission has already been sent to your validators.</p></div></div>
+      <% } %>
+    </section>
+  </main>
+</div>
+<%- include('../partials/footer') %>

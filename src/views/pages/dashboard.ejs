@@ -44,14 +44,19 @@
           <div><span class="eyebrow">TODAY'S ADVENTURE</span><h2>Your missions</h2></div>
           <% if (canManageMissions) { %><a class="text-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Create mission</a><% } %>
         </div>
+        <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
         <% if (activities.length) { %>
           <div class="mission-list real-missions">
           <% activities.forEach((mission) => { %>
-            <article class="mission-card">
+            <article class="mission-card <%= mission.status === 'pending_validation' ? 'is-awaiting' : '' %>">
               <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
               <div class="mission-copy"><span class="mission-category"><%= mission.category.replace('_', ' ') %> · <%= mission.difficulty %></span><h3><%= mission.title %></h3><p><%= mission.description %></p></div>
               <div class="mission-reward"><span>+<%= mission.xpReward %> XP</span><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span></div>
-              <span class="status-chip status-<%= mission.status %>"><%= mission.status.replace('_', ' ') %></span>
+              <% if (!canManageMissions && ['assigned', 'changes_requested'].includes(mission.status)) { %>
+                <a class="round-action" href="/missions/<%= mission._id %>" aria-label="Open <%= mission.title %>"><i class="bi bi-chevron-right"></i></a>
+              <% } else { %>
+                <span class="status-chip status-<%= mission.status %>"><%= mission.status === 'pending_validation' ? 'Awaiting approval' : mission.status.replace('_', ' ') %></span>
+              <% } %>
             </article>
           <% }) %>
           </div>

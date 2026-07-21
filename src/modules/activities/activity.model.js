@@ -22,7 +22,9 @@ const activitySchema = new mongoose.Schema({
     enum: ['assigned', 'pending_validation', 'approved', 'changes_requested'],
     default: 'assigned',
     index: true
-  }
+  },
+  completionNote: { type: String, trim: true, maxlength: 500, default: '' },
+  submittedAt: { type: Date, default: null }
 }, { timestamps: true });
 
 activitySchema.index({ family: 1, createdAt: -1 });

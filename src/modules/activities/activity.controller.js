@@ -38,6 +38,49 @@ async function showManage(request, response, next) {
   }
 }
 
+async function showDetails(request, response, next) {
+  try {
+    const activity = await activityService.getPlayerActivity(request.params.activityId, request.session.user);
+    return response.render('pages/mission-details', {
+      pageTitle: activity.title,
+      activePage: 'missions',
+      activity,
+      error: null,
+      values: {}
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function submitForApproval(request, response, next) {
+  try {
+    await activityService.submitForApproval(
+      request.params.activityId,
+      request.body.completionNote,
+      request.session.user
+    );
+    request.session.flash = { type: 'success', message: 'Mission sent for approval!' };
+    return response.redirect('/');
+  } catch (error) {
+    if (error.status === 400) {
+      try {
+        const activity = await activityService.getPlayerActivity(request.params.activityId, request.session.user);
+        return response.status(400).render('pages/mission-details', {
+          pageTitle: activity.title,
+          activePage: 'missions',
+          activity,
+          error: error.message,
+          values: request.body
+        });
+      } catch (lookupError) {
+        return next(lookupError);
+      }
+    }
+    return next(error);
+  }
+}
+
 async function renderCreate(response, currentUser, values = {}, error = null, status = 200) {
   const members = await activityService.getFamilyMembers(currentUser.familyId);
   return response.status(status).render('pages/create-mission', {
@@ -49,4 +92,4 @@ async function renderCreate(response, currentUser, values = {}, error = null, st
   });
 }
 
-module.exports = { showCreate, create, showManage };
+module.exports = { showCreate, create, showManage, showDetails, submitForApproval };
