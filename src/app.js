@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const homeRoutes = require('./routes/home.routes');
 const authRoutes = require('./modules/auth/auth.routes');
 const activityRoutes = require('./modules/activities/activity.routes');
+const rewardRoutes = require('./modules/rewards/reward.routes');
 const { exposeCurrentUser } = require('./middleware/authentication');
 const { notFound, errorHandler } = require('./middleware/error-handler');
 const csrfProtection = require('./middleware/csrf');
@@ -38,6 +39,7 @@ app.use(csrfProtection);
 
 app.use('/auth', authRoutes);
 app.use('/missions', activityRoutes);
+app.use('/reward-catalog', rewardRoutes);
 app.use('/', homeRoutes);
 app.use(notFound);
 app.use(errorHandler);
