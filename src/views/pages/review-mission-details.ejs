@@ -1,0 +1,19 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header"><div><span class="eyebrow">MISSION REVIEW</span><h1><%= activity.title %></h1><p>Submitted by <%= activity.assignedTo.name %>.</p></div><a class="secondary-action" href="/missions/review"><i class="bi bi-arrow-left"></i> Back to reviews</a></header>
+    <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle-fill"></i><%= error %></div><% } %>
+    <section class="mission-detail-card">
+      <div class="mission-detail-heading"><div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div><div><span class="mission-category"><%= activity.category.replace('_', ' ') %> · <%= activity.difficulty %></span><h2><%= activity.title %></h2><p><%= activity.description %></p></div><div class="detail-rewards"><strong>+<%= activity.xpReward %> XP</strong><span><i class="bi bi-coin"></i> <%= activity.coinReward %></span></div></div>
+      <% if (activity.instructions) { %><div class="mission-instructions review-instructions"><span>Instructions</span><p><%= activity.instructions %></p></div><% } %>
+      <div class="completion-evidence"><span>SOFI'S COMPLETION NOTE</span><p><%= activity.completionNote || 'Sofi did not add a note for this mission.' %></p><small>Submitted <%= new Intl.DateTimeFormat('en', { dateStyle: 'long', timeStyle: 'short' }).format(activity.submittedAt) %></small></div>
+      <form class="submission-form review-form" method="post" action="/missions/review/<%= activity._id %>">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="field">Feedback <span>Required only when requesting changes.</span><textarea name="reviewNote" rows="4" maxlength="500" placeholder="Tell Sofi what needs a small adjustment..."><%= values.reviewNote || '' %></textarea></label>
+        <div class="review-actions"><button class="changes-action" type="submit" name="decision" value="changes_requested"><i class="bi bi-arrow-repeat"></i> Request changes</button><button class="approve-action" type="submit" name="decision" value="approved"><i class="bi bi-check2-circle"></i> Approve mission</button></div>
+      </form>
+    </section>
+  </main>
+</div>
+<%- include('../partials/footer') %>

@@ -24,7 +24,10 @@ const activitySchema = new mongoose.Schema({
     index: true
   },
   completionNote: { type: String, trim: true, maxlength: 500, default: '' },
-  submittedAt: { type: Date, default: null }
+  submittedAt: { type: Date, default: null },
+  reviewNote: { type: String, trim: true, maxlength: 500, default: '' },
+  reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  reviewedAt: { type: Date, default: null }
 }, { timestamps: true });
 
 activitySchema.index({ family: 1, createdAt: -1 });

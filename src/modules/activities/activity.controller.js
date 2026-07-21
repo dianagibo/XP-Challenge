@@ -81,6 +81,50 @@ async function submitForApproval(request, response, next) {
   }
 }
 
+async function showReviewQueue(request, response, next) {
+  try {
+    const activities = await activityService.listReviewableActivities(request.session.user);
+    const flash = request.session.flash;
+    delete request.session.flash;
+    return response.render('pages/review-missions', {
+      pageTitle: 'Review missions', activePage: 'reviews', activities, flash
+    });
+  } catch (error) { return next(error); }
+}
+
+async function showReviewDetails(request, response, next) {
+  try {
+    const activity = await activityService.getReviewableActivity(request.params.activityId, request.session.user);
+    return response.render('pages/review-mission-details', {
+      pageTitle: `Review ${activity.title}`, activePage: 'reviews', activity, error: null, values: {}
+    });
+  } catch (error) { return next(error); }
+}
+
+async function review(request, response, next) {
+  try {
+    await activityService.reviewActivity(
+      request.params.activityId, request.body.decision, request.body.reviewNote, request.session.user
+    );
+    request.session.flash = {
+      type: 'success',
+      message: request.body.decision === 'approved' ? 'Mission approved!' : 'Changes requested from Sofi.'
+    };
+    return response.redirect('/missions/review');
+  } catch (error) {
+    if (error.status === 400) {
+      try {
+        const activity = await activityService.getReviewableActivity(request.params.activityId, request.session.user);
+        return response.status(400).render('pages/review-mission-details', {
+          pageTitle: `Review ${activity.title}`, activePage: 'reviews', activity,
+          error: error.message, values: request.body
+        });
+      } catch (lookupError) { return next(lookupError); }
+    }
+    return next(error);
+  }
+}
+
 async function renderCreate(response, currentUser, values = {}, error = null, status = 200) {
   const members = await activityService.getFamilyMembers(currentUser.familyId);
   return response.status(status).render('pages/create-mission', {
@@ -92,4 +136,7 @@ async function renderCreate(response, currentUser, values = {}, error = null, st
   });
 }
 
-module.exports = { showCreate, create, showManage, showDetails, submitForApproval };
+module.exports = {
+  showCreate, create, showManage, showDetails, submitForApproval,
+  showReviewQueue, showReviewDetails, review
+};

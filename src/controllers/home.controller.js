@@ -3,10 +3,14 @@ const activityService = require('../modules/activities/activity.service');
 
 async function showDashboard(request, response, next) {
   if (request.session.user.role === 'validator') {
-    return response.render('pages/validator-home', {
-      pageTitle: 'Validation center',
-      activePage: 'home'
-    });
+    try {
+      const activities = await activityService.listReviewableActivities(request.session.user);
+      const flash = request.session.flash;
+      delete request.session.flash;
+      return response.render('pages/validator-home', {
+        pageTitle: 'Validation center', activePage: 'home', activities, flash
+      });
+    } catch (error) { return next(error); }
   }
   try {
     const game = structuredClone(demoGame);

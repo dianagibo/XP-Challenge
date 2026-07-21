@@ -93,7 +93,10 @@ async function submitForApproval(activityId, completionNote, currentUser) {
     $set: {
       status: 'pending_validation',
       completionNote: note,
-      submittedAt: new Date()
+      submittedAt: new Date(),
+      reviewNote: '',
+      reviewedBy: null,
+      reviewedAt: null
     }
   }, { new: true });
 
@@ -107,6 +110,53 @@ async function submitForApproval(activityId, completionNote, currentUser) {
 
   if (!existing) throw notFoundError();
   throw validationError('This mission cannot be sent for approval in its current status.');
+}
+
+async function listReviewableActivities(currentUser) {
+  return Activity.find({
+    family: currentUser.familyId,
+    validators: currentUser.id,
+    status: 'pending_validation'
+  })
+    .populate('assignedTo', 'name username selectedAvatar')
+    .sort({ submittedAt: 1 })
+    .lean();
+}
+
+async function getReviewableActivity(activityId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+  const activity = await Activity.findOne({
+    _id: activityId,
+    family: currentUser.familyId,
+    validators: currentUser.id,
+    status: 'pending_validation'
+  })
+    .populate('assignedTo', 'name username selectedAvatar')
+    .populate('validators', 'name')
+    .lean();
+  if (!activity) throw notFoundError();
+  return activity;
+}
+
+async function reviewActivity(activityId, decision, reviewNote, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+  if (!['approved', 'changes_requested'].includes(decision)) throw validationError('Select a valid review decision.');
+
+  const note = String(reviewNote || '').trim();
+  if (note.length > 500) throw validationError('Your feedback must be 500 characters or fewer.');
+  if (decision === 'changes_requested' && !note) throw validationError('Feedback is required when requesting changes.');
+
+  const activity = await Activity.findOneAndUpdate({
+    _id: activityId,
+    family: currentUser.familyId,
+    validators: currentUser.id,
+    status: 'pending_validation'
+  }, {
+    $set: { status: decision, reviewNote: note, reviewedBy: currentUser.id, reviewedAt: new Date() }
+  }, { new: true });
+
+  if (activity) return activity;
+  throw notFoundError();
 }
 
 function validationError(message) {
@@ -128,5 +178,8 @@ module.exports = {
   listManagedActivities,
   listPlayerActivities,
   getPlayerActivity,
-  submitForApproval
+  submitForApproval,
+  listReviewableActivities,
+  getReviewableActivity,
+  reviewActivity
 };
