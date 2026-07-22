@@ -16,7 +16,9 @@ const recurringMissionSchema = new mongoose.Schema({
   weekdays: [{ type: Number, min: 0, max: 6 }],
   startDate: { type: String, required: true },
   endDate: { type: String, default: null },
-  isActive: { type: Boolean, default: true, index: true }
+  isActive: { type: Boolean, default: true, index: true },
+  endedAt: { type: Date, default: null, index: true },
+  endedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 }, { timestamps: true });
 
 recurringMissionSchema.index({ family: 1, createdAt: -1 });

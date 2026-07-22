@@ -6,16 +6,18 @@
       <div><span class="eyebrow">CONTROL DE MISIONES</span><h1>Administrar misiones</h1><p>Sigue cada responsabilidad desde su asignación hasta la aprobación.</p></div>
       <div class="top-actions"><a class="secondary-action" href="/missions/archive"><i class="bi bi-archive"></i> Archivadas</a><a class="primary-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Crear misión</a></div>
     </header>
-    <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
+    <% if (flash) { %><div class="<%= flash.type === 'error' ? 'form-alert' : 'success-alert' %>"><i class="bi bi-<%= flash.type === 'error' ? 'exclamation-circle' : 'check-circle-fill' %>"></i><%= flash.message %></div><% } %>
     <% if (recurringMissions.length) { %>
       <section class="form-card">
-        <div class="form-card-heading"><span><i class="bi bi-arrow-repeat"></i></span><div><h2>Misiones recurrentes</h2><p>Pausa o reactiva las próximas misiones sin perder el historial completado.</p></div></div>
+        <div class="form-card-heading"><span><i class="bi bi-arrow-repeat"></i></span><div><h2>Series recurrentes</h2><p>Edita, pausa o finaliza hábitos sin alterar el historial completado.</p></div></div>
         <div class="manage-list">
           <% recurringMissions.forEach((series) => { %>
             <article class="manage-card">
               <div class="mission-icon icon-purple"><i class="bi bi-arrow-repeat"></i></div>
-              <div class="manage-copy"><div><span class="mission-category"><%= labelFor('frequency', series.frequency) %><%= series.frequency === 'weekly' ? ' · ' + series.weekdays.map(day => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][day]).join(', ') : '' %></span><h2><%= series.title %></h2></div><p>Inicia <%= series.startDate %><%= series.endDate ? ' · Finaliza ' + series.endDate : ' · Sin fecha final' %></p></div>
-              <div class="manage-reward"><span class="status-chip <%= series.isActive ? 'status-approved' : 'status-changes_requested' %>"><%= series.isActive ? 'Activa' : 'Pausada' %></span><form method="post" action="/missions/recurring/<%= series._id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= series.isActive ? 'pause' : 'resume' %>"><button class="secondary-action" type="submit"><%= series.isActive ? 'Pausar' : 'Reactivar' %></button></form></div>
+              <div class="manage-copy"><div><span class="mission-category"><%= labelFor('frequency', series.frequency) %><%= series.frequency === 'weekly' ? ' · ' + series.weekdays.map(day => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][day]).join(', ') : '' %></span><h2><%= series.title %></h2></div><p>Inicia <%= series.startDate %><%= series.endDate ? ' · Finaliza ' + series.endDate : ' · Sin fecha final' %><br><small><%= series.endedAt ? 'Serie finalizada' : series.isActive ? (series.nextOccurrence ? 'Próxima misión: ' + series.nextOccurrence : 'No quedan fechas programadas') : 'La generación está pausada' %></small></p></div>
+              <div class="manage-reward"><span class="status-chip <%= series.endedAt ? 'status-canceled' : series.isActive ? 'status-approved' : 'status-changes_requested' %>"><%= series.endedAt ? 'Finalizada' : series.isActive ? 'Activa' : 'Pausada' %></span><div class="mission-manage-actions">
+                <% if (!series.endedAt) { %><a class="secondary-action compact-action" href="/missions/recurring/<%= series._id %>/edit">Editar</a><form method="post" action="/missions/recurring/<%= series._id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= series.isActive ? 'pause' : 'resume' %>"><button class="secondary-action compact-action" type="submit"><%= series.isActive ? 'Pausar' : 'Reactivar' %></button></form><form method="post" action="/missions/recurring/<%= series._id %>/end"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="danger-action compact-action" type="submit" onclick="return confirm('¿Finalizar esta serie definitivamente? Las misiones pendientes futuras dejarán de aparecer y el historial se conservará.')">Finalizar</button></form><% } %>
+              </div></div>
             </article>
           <% }) %>
         </div>
