@@ -29,6 +29,7 @@ async function getPlayerRewards(userId) {
 async function listPlayerTransactions(userId, familyId) {
   return RewardTransaction.find({ recipient: userId, family: familyId })
     .populate('sourceActivity', 'title category')
+    .populate('sourceBonus', 'title category status')
     .populate('grantedBy', 'name')
     .sort({ createdAt: -1 })
     .lean();

@@ -1,0 +1,17 @@
+<%- include('../partials/head') %>
+<div class="app-shell"><%- include('../partials/sidebar') %><main class="game-main mission-workspace">
+  <header class="workspace-header"><div><span class="eyebrow">MOMENTOS QUE MERECEN BRILLAR</span><h1>Bonos y reconocimientos</h1><p>Celebramos la actitud, el esfuerzo y los avances que van más allá de una misión.</p></div></header>
+  <% if (flash) { %><div class="alert <%= flash.type === 'success' ? 'alert-success' : 'alert-danger' %>"><%= flash.message %></div><% } %>
+  <% if (currentUser.role === 'admin_player') { %><section class="history-card bonus-form-card"><div class="section-heading"><div><span class="eyebrow">NUEVO RECONOCIMIENTO</span><h2>Reconocer a <%= player?.name || 'Sofi' %></h2></div></div>
+    <form method="post" action="/bonuses" class="bonus-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Título<input name="title" maxlength="80" required placeholder="Ej. Una actitud increíble"></label>
+      <label>Motivo<select name="category" required><option value="good_attitude">Buena actitud</option><option value="initiative">Iniciativa</option><option value="extra_effort">Esfuerzo adicional</option><option value="academic_improvement">Mejora académica</option><option value="help_at_home">Ayuda en casa</option><option value="emotional_management">Manejo de emociones</option><option value="other">Otro</option></select></label>
+      <label class="bonus-message">Mensaje<textarea name="message" maxlength="300" required placeholder="Cuéntale por qué estás orgullosa de ella"></textarea></label>
+      <label>XP<input type="number" name="xpAmount" min="0" max="10000" value="0" required></label><label>Monedas<input type="number" name="coinAmount" min="0" max="10000" value="0" required></label>
+      <button class="primary-action" type="submit"><i class="bi bi-stars"></i> Entregar reconocimiento</button>
+    </form></section><% } %>
+  <section class="history-card"><div class="section-heading"><div><span class="eyebrow">HISTORIAL</span><h2>Reconocimientos entregados</h2></div></div>
+    <% if (bonuses.length) { %><div class="bonus-grid"><% bonuses.forEach((bonus) => { %><a class="bonus-card <%= bonus.status === 'voided' ? 'voided' : '' %>" href="/bonuses/<%= bonus._id %>"><i class="bi bi-award-fill"></i><div><strong><%= bonus.title %></strong><p><%= bonus.message %></p><small><%= bonus.recipient?.name %> · <%= formatDate(bonus.createdAt, true) %></small></div><span><b>+<%= bonus.xpAmount %> XP</b><b><i class="bi bi-coin"></i> +<%= bonus.coinAmount %></b><% if (bonus.status === 'voided') { %><em>Anulado</em><% } %></span></a><% }) %></div>
+    <% } else { %><article class="mission-empty"><i class="bi bi-award"></i><div><h3>Aún no hay reconocimientos</h3><p>El primer momento especial aparecerá aquí.</p></div></article><% } %>
+  </section>
+</main></div><%- include('../partials/footer') %>

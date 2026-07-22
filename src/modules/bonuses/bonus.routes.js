@@ -1,0 +1,11 @@
+const router = require('express').Router();
+const controller = require('./bonus.controller');
+const { requireAuthentication } = require('../../middleware/authentication');
+const { allowRoles } = require('../../middleware/authorization');
+router.use(requireAuthentication);
+router.get('/', allowRoles('admin_player', 'player', 'validator'), controller.showList);
+router.post('/', allowRoles('admin_player'), controller.create);
+router.get('/:id', allowRoles('admin_player', 'player', 'validator'), controller.showDetail);
+router.post('/:id/edit', allowRoles('admin_player'), controller.update);
+router.post('/:id/void', allowRoles('admin_player'), controller.voidBonus);
+module.exports = router;

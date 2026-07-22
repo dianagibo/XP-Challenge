@@ -15,8 +15,8 @@
       <% if (transactions.length) { %><div class="reward-history">
         <% transactions.forEach((transaction) => { %><article class="reward-history-row">
           <div class="mission-icon icon-purple"><i class="bi bi-trophy-fill"></i></div>
-          <div><strong><%= transaction.sourceActivity?.title || 'Misión aprobada' %></strong><p>Aprobada por <%= transaction.grantedBy?.name || 'una persona validadora' %> · <%= formatDate(transaction.createdAt, true) %></p></div>
-          <div class="history-amount"><strong>+<%= transaction.xpAmount %> XP</strong><span><i class="bi bi-coin"></i> +<%= transaction.coinAmount %></span></div>
+          <div><strong><%= transaction.sourceActivity?.title || transaction.sourceBonus?.title || 'Reconocimiento especial' %></strong><p><%= transaction.type === 'mission_approved' ? 'Aprobada' : transaction.type === 'manual_bonus_voided' ? 'Bono anulado' : 'Bono entregado' %> por <%= transaction.grantedBy?.name || 'una persona validadora' %> · <%= formatDate(transaction.createdAt, true) %></p></div>
+          <div class="history-amount"><strong><%= transaction.xpAmount >= 0 ? '+' : '' %><%= transaction.xpAmount %> XP</strong><span><i class="bi bi-coin"></i> <%= transaction.coinAmount >= 0 ? '+' : '' %><%= transaction.coinAmount %></span></div>
         </article><% }) %>
       </div><% } else { %>
         <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>Tu primer premio te está esperando</h3><p>Completa una misión y consigue su aprobación para iniciar tu historial.</p></div></article>
