@@ -5,13 +5,14 @@
   <div class="app-shell">
     <%- include('../partials/sidebar', { activePage }) %>
     <main class="main-content weekly-report-page">
+      <div class="weekly-report-scroll">
+      <div class="weekly-report-content">
       <header class="report-header">
         <div>
           <p class="eyebrow">Nuestra aventura en familia</p>
           <h1>Reporte semanal</h1>
           <p><%= formatDate(`${report.weekStart}T12:00:00Z`) %> – <%= formatDate(`${report.weekEnd}T12:00:00Z`) %></p>
         </div>
-        <button class="btn btn-outline-primary print-report" type="button" onclick="window.print()"><i class="bi bi-printer-fill"></i> Imprimir o guardar PDF</button>
       </header>
 
       <nav class="week-selector" aria-label="Cambiar semana">
@@ -81,6 +82,8 @@
 
         <section class="report-celebration"><i class="bi bi-heart-fill"></i><h2><%= report.encouragement %></h2><p>Este reporte celebra el esfuerzo; no busca comparar quién hizo más.</p></section>
       <% } %>
+      </div>
+      </div>
     </main>
   </div>
   <%- include('../partials/mobile-nav', { activePage }) %>

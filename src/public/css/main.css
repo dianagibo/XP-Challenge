@@ -169,6 +169,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .catalog-admin-actions{display:grid;gap:.6rem}
 /* Weekly family report */
 .weekly-report-page { padding-bottom: 6rem; }
+.weekly-report-scroll { width: 100%; overflow-x: auto; padding-bottom: .75rem; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.weekly-report-content { min-width: 720px; }
 .report-header, .week-selector { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .report-header { margin-bottom: 1.25rem; }
 .report-header h1 { margin-bottom: .25rem; }
@@ -205,12 +207,3 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .report-celebration i, .report-empty > i { font-size: 2rem; color: #e65c97; }
 .report-celebration h2 { max-width: 700px; margin: .75rem auto; }
 .report-empty { margin-top: 2rem; }
-@media (max-width: 900px) { .family-summary-grid { grid-template-columns: repeat(2, 1fr); } .player-report-grid, .report-two-columns { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .report-header { align-items: flex-start; flex-direction: column; } .print-report { width: 100%; } .week-selector { display: grid; grid-template-columns: 1fr; text-align: center; } .family-summary-grid, .recognition-highlights { grid-template-columns: 1fr; } }
-@media print {
-  .game-sidebar, .mobile-nav, .print-report, .week-selector, .logout-form { display: none !important; }
-  .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
-  .player-report-card, .report-panel, .family-summary-grid article { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
-  .report-section, .report-celebration { break-inside: avoid; }
-  body { background: #fff !important; }
-}
