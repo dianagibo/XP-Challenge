@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   totalXp: { type: Number, default: 0, min: 0 },
   coinBalance: { type: Number, default: 0, min: 0 },
   lastLoginAt: { type: Date, default: null }
+  ,sessionVersion: { type: Number, default: 0, min: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

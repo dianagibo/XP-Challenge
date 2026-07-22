@@ -1,0 +1,11 @@
+const express = require('express');
+const controller = require('./account.controller');
+const { requireAuthentication } = require('../../middleware/authentication');
+const { allowRoles } = require('../../middleware/authorization');
+const router = express.Router();
+router.use(requireAuthentication);
+router.get('/settings', controller.showSettings);
+router.post('/password', controller.changePassword);
+router.post('/family/:userId/password', allowRoles('admin_player'), controller.resetPassword);
+router.post('/avatar', allowRoles('admin_player', 'player'), controller.selectAvatar);
+module.exports = router;
