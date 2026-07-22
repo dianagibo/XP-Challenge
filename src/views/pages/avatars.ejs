@@ -1,4 +1,5 @@
 <%- include('../partials/head') %>
+<% const selectedAvatar = game.avatars.find((avatar) => avatar.id === game.player.avatar) || game.avatars[0]; %>
 <div class="app-shell">
   <%- include('../partials/sidebar') %>
   <main class="game-main avatar-page">
@@ -8,8 +9,8 @@
     </header>
 
     <section class="avatar-stage">
-      <div class="stage-copy"><span class="level-chip"><i class="bi bi-stars"></i> Seleccionado actualmente</span><h2>Nova</h2><p>Una exploradora brillante que convierte cada reto en una nueva aventura.</p></div>
-      <%- include('../partials/avatar', { avatar: game.avatars[0], size: 'hero' }) %>
+      <div class="stage-copy"><span class="level-chip"><i class="bi bi-stars"></i> Seleccionado actualmente</span><h2><%= selectedAvatar.name %></h2><p><%= selectedAvatar.description %></p></div>
+      <%- include('../partials/avatar', { avatar: selectedAvatar, size: 'hero' }) %>
     </section>
 
     <section class="avatar-section">
