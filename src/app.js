@@ -9,6 +9,7 @@ const authRoutes = require('./modules/auth/auth.routes');
 const activityRoutes = require('./modules/activities/activity.routes');
 const rewardRoutes = require('./modules/rewards/reward.routes');
 const weeklyGoalRoutes = require('./modules/goals/weekly-goal.routes');
+const accountRoutes = require('./modules/accounts/account.routes');
 const { exposeCurrentUser } = require('./middleware/authentication');
 const { notFound, errorHandler } = require('./middleware/error-handler');
 const csrfProtection = require('./middleware/csrf');
@@ -50,7 +51,7 @@ app.use((request, response, next) => {
   const labels = {
     category: { all: 'Todas las misiones', home: 'Hogar', school: 'Colegio', wellbeing: 'Bienestar', personal_growth: 'Crecimiento personal', family: 'Familia' },
     difficulty: { easy: 'Fácil', medium: 'Media', hard: 'Difícil', epic: 'Épica' },
-    status: { assigned: 'Asignada', pending_validation: 'Esperando aprobación', changes_requested: 'Necesita ajustes', approved: 'Aprobada', active: 'Activa', paused: 'Pausada', completed: 'Cumplida', expired: 'Finalizada', pending_delivery: 'Pendiente de entrega', delivered: 'Entregada' },
+    status: { assigned: 'Asignada', pending_validation: 'Esperando aprobación', changes_requested: 'Necesita ajustes', approved: 'Aprobada', canceled: 'Cancelada', active: 'Activa', paused: 'Pausada', completed: 'Cumplida', expired: 'Finalizada', pending_delivery: 'Pendiente de entrega', delivered: 'Entregada' },
     frequency: { once: 'Una vez', daily: 'Todos los días', weekly: 'Días seleccionados' }
   };
   response.locals.labelFor = (group, value) => labels[group]?.[value] || String(value || '').replaceAll('_', ' ');
@@ -65,6 +66,7 @@ app.use('/auth', authRoutes);
 app.use('/missions', activityRoutes);
 app.use('/reward-catalog', rewardRoutes);
 app.use('/weekly-goals', weeklyGoalRoutes);
+app.use('/account', accountRoutes);
 app.use('/', homeRoutes);
 app.use(notFound);
 app.use(errorHandler);

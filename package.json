@@ -9,7 +9,7 @@
     "dev": "nodemon src/server.js",
     "seed": "node src/scripts/seed.js",
     "migrate:spanish": "node src/scripts/migrate-spanish.js",
-    "check": "node --check src/server.js && node --check src/app.js && node --check src/scripts/seed.js && node --check src/scripts/migrate-spanish.js"
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/scripts/seed.js && node --check src/scripts/migrate-spanish.js && node --check src/modules/accounts/account.service.js && node --check src/modules/accounts/account.controller.js && node --check src/modules/activities/activity.service.js && node --check src/modules/activities/activity.controller.js"
   },
   "engines": {
     "node": ">=20"

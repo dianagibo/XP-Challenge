@@ -7,7 +7,7 @@
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Premios</span></a><% } %>
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas</span></a><% } %>
-  <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/avatars"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
+  <a class="<%= ['profile','settings'].includes(activePage) ? 'active' : '' %>" href="/account/settings"><i class="bi bi-person-fill"></i><span>Cuenta</span></a>
   <form method="post" action="/auth/logout">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <button type="submit" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-left"></i><span>Salir</span></button>

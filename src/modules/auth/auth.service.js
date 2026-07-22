@@ -22,6 +22,7 @@ async function authenticate(username, password) {
     role: membership.role,
     familyId: membership.family.id,
     familyName: membership.family.name
+    ,sessionVersion: user.sessionVersion || 0
   };
 }
 

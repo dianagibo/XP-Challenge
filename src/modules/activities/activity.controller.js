@@ -51,6 +51,40 @@ async function setRecurringActive(request, response, next) {
   } catch (error) { return next(error); }
 }
 
+async function showEdit(request, response, next) {
+  try {
+    const activity = await activityService.getManagedActivity(request.params.activityId, request.session.user);
+    if (!['assigned', 'changes_requested'].includes(activity.status)) {
+      request.session.flash = { type: 'error', message: 'Esta misión ya no admite edición.' };
+      return response.redirect('/missions/manage');
+    }
+    activity.dueDate = new Date(activity.dueDate).toISOString().slice(0, 10);
+    return renderEdit(response, request.session.user, activity);
+  } catch (error) { return next(error); }
+}
+async function update(request, response, next) {
+  try {
+    await activityService.updateActivity(request.params.activityId, request.body, request.session.user);
+    request.session.flash = { type: 'success', message: 'Misión actualizada correctamente.' };
+    return response.redirect('/missions/manage');
+  } catch (error) {
+    if (error.status === 400 || error.name === 'ValidationError') return renderEdit(response, request.session.user, { ...request.body, _id: request.params.activityId }, error.message, 400);
+    return next(error);
+  }
+}
+async function cancel(request, response, next) {
+  try { await activityService.cancelActivity(request.params.activityId, request.session.user); request.session.flash = { type: 'success', message: 'Misión cancelada. No se modificaron XP, monedas ni historial.' }; return response.redirect('/missions/manage'); }
+  catch (error) { if (error.status === 400) { request.session.flash = { type: 'error', message: error.message }; return response.redirect('/missions/manage'); } return next(error); }
+}
+async function archive(request, response, next) {
+  try { await activityService.archiveActivity(request.params.activityId, request.session.user); request.session.flash = { type: 'success', message: 'Misión archivada.' }; return response.redirect('/missions/manage'); }
+  catch (error) { if (error.status === 400) { request.session.flash = { type: 'error', message: error.message }; return response.redirect('/missions/manage'); } return next(error); }
+}
+async function showArchive(request, response, next) {
+  try { const activities = await activityService.listArchivedActivities(request.session.user.familyId); return response.render('pages/mission-archive', { pageTitle: 'Historial archivado', activePage: 'missions', activities }); }
+  catch (error) { return next(error); }
+}
+
 async function showDetails(request, response, next) {
   try {
     const activity = await activityService.getPlayerActivity(request.params.activityId, request.session.user);
@@ -151,7 +185,18 @@ async function renderCreate(response, currentUser, values = {}, error = null, st
   });
 }
 
+async function renderEdit(response, currentUser, values, error = null, status = 200) {
+  const members = await activityService.getFamilyMembers(currentUser.familyId);
+  return response.status(status).render('pages/edit-mission', {
+    pageTitle: 'Editar misión', activePage: 'missions', values, error,
+    rewards: activityService.REWARDS, categories: CATEGORIES,
+    validators: members.filter((item) => ['admin_player', 'validator'].includes(item.role)),
+    minimumDate: new Date().toISOString().slice(0, 10)
+  });
+}
+
 module.exports = {
   showCreate, create, showManage, showDetails, submitForApproval,
-  showReviewQueue, showReviewDetails, review, setRecurringActive
+  showReviewQueue, showReviewDetails, review, setRecurringActive,
+  showEdit, update, cancel, archive, showArchive
 };

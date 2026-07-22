@@ -1,0 +1,17 @@
+<%- include('../partials/head') %>
+<div class="app-shell"><%- include('../partials/sidebar') %><main class="game-main mission-workspace">
+  <header class="workspace-header"><div><span class="eyebrow">SEGURIDAD Y PERFIL</span><h1>Configuración de cuenta</h1><p>Actualiza tu acceso sin compartir ni mostrar contraseñas.</p></div><a class="secondary-action" href="/avatars">Cambiar avatar</a></header>
+  <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
+  <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle-fill"></i><%= error %></div><% } %>
+  <section class="form-card"><div class="form-card-heading"><span><i class="bi bi-key-fill"></i></span><div><h2>Cambiar mi contraseña</h2><p>Se cerrarán las demás sesiones abiertas de tu cuenta.</p></div></div>
+    <form method="post" action="/account/password" class="form-grid"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label class="field field-wide"><span>Contraseña actual</span><input type="password" name="currentPassword" required autocomplete="current-password"></label>
+      <label class="field"><span>Nueva contraseña</span><input type="password" name="newPassword" minlength="10" required autocomplete="new-password"></label>
+      <label class="field"><span>Confirmar contraseña</span><input type="password" name="confirmPassword" minlength="10" required autocomplete="new-password"></label>
+      <p class="field-wide">Usa mínimo 10 caracteres, con mayúscula, minúscula y número.</p><div class="form-actions field-wide"><button class="primary-action" type="submit">Actualizar contraseña</button></div>
+    </form>
+  </section>
+  <% if (currentUser.role === 'admin_player') { %><section class="form-card"><div class="form-card-heading"><span><i class="bi bi-people-fill"></i></span><div><h2>Accesos de la familia</h2><p>Puedes asignar una contraseña temporal a Sofi o mamá.</p></div></div><div class="manage-list">
+    <% accounts.filter(item => item.user && item.role !== 'admin_player').forEach(item => { %><article class="manage-card"><div class="manage-copy"><h2><%= item.user.name %></h2><p>@<%= item.user.username %></p></div><form class="inline-password-form" method="post" action="/account/family/<%= item.user._id %>/password"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input aria-label="Nueva contraseña para <%= item.user.name %>" type="password" name="newPassword" minlength="10" placeholder="Nueva contraseña" required><input aria-label="Confirmar contraseña" type="password" name="confirmPassword" minlength="10" placeholder="Confirmar" required><button class="secondary-action" type="submit" onclick="return confirm('¿Restablecer la contraseña de <%= item.user.name %>?')">Restablecer</button></form></article><% }) %>
+  </div></section><% } %>
+</main></div><%- include('../partials/footer') %>

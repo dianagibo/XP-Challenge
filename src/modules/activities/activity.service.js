@@ -67,7 +67,7 @@ async function createActivity(input, currentUser) {
 
 async function listManagedActivities(familyId) {
   await materializeActiveSeries(familyId);
-  const [activities, recurringMissions] = await Promise.all([Activity.find({ family: familyId })
+  const [activities, recurringMissions] = await Promise.all([Activity.find({ family: familyId, archivedAt: null })
     .populate('assignedTo', 'name username selectedAvatar')
     .populate('validators', 'name')
     .sort({ createdAt: -1 })
@@ -79,7 +79,7 @@ async function listManagedActivities(familyId) {
 
 async function listPlayerActivities(userId, familyId) {
   await materializeActiveSeries(familyId);
-  return Activity.find({ family: familyId, assignedTo: userId })
+  return Activity.find({ family: familyId, assignedTo: userId, archivedAt: null, status: { $ne: 'canceled' } })
     .sort({ dueDate: 1, createdAt: -1 })
     .lean();
 }
@@ -211,11 +211,54 @@ async function listReviewableActivities(currentUser) {
   return Activity.find({
     family: currentUser.familyId,
     validators: currentUser.id,
-    status: 'pending_validation'
+    status: 'pending_validation', archivedAt: null
   })
     .populate('assignedTo', 'name username selectedAvatar')
     .sort({ submittedAt: 1 })
     .lean();
+}
+
+async function getManagedActivity(activityId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+  const activity = await Activity.findOne({ _id: activityId, family: currentUser.familyId, archivedAt: null }).lean();
+  if (!activity) throw notFoundError();
+  return activity;
+}
+
+async function updateActivity(activityId, input, currentUser) {
+  const existing = await getManagedActivity(activityId, currentUser);
+  if (!['assigned', 'changes_requested'].includes(existing.status)) {
+    throw validationError('Solo puedes editar una misión asignada o devuelta para ajustes.');
+  }
+  const members = await getFamilyMembers(currentUser.familyId);
+  const validatorIds = new Set(members.filter((item) => ['admin_player', 'validator'].includes(item.role)).map((item) => String(item.user._id)));
+  const selectedValidators = [...new Set([input.validators].flat().filter(Boolean))];
+  if (!selectedValidators.length || selectedValidators.some((id) => !validatorIds.has(String(id)))) throw validationError('Selecciona al menos una persona válida para revisar.');
+  if (!REWARDS[input.difficulty]) throw validationError('Selecciona una dificultad válida.');
+  validateDateRange(input.dueDate);
+  return Activity.findOneAndUpdate({ _id: activityId, family: currentUser.familyId, status: existing.status, archivedAt: null }, { $set: {
+    title: input.title, description: input.description, category: input.category, difficulty: input.difficulty,
+    xpReward: Number(input.xpReward), coinReward: Number(input.coinReward), instructions: input.instructions || '',
+    validators: selectedValidators, dueDate: endOfDay(input.dueDate)
+  } }, { new: true, runValidators: true });
+}
+
+async function cancelActivity(activityId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+  const activity = await Activity.findOneAndUpdate({ _id: activityId, family: currentUser.familyId, status: { $in: ['assigned', 'changes_requested', 'pending_validation'] }, archivedAt: null }, { $set: { status: 'canceled', canceledAt: new Date(), canceledBy: currentUser.id } }, { new: true });
+  if (!activity) throw validationError('Esta misión ya no puede cancelarse. Las aprobadas se conservan como historial.');
+  return activity;
+}
+
+async function archiveActivity(activityId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+  const activity = await Activity.findOneAndUpdate({ _id: activityId, family: currentUser.familyId, status: { $in: ['approved', 'canceled'] }, archivedAt: null }, { $set: { archivedAt: new Date(), archivedBy: currentUser.id } }, { new: true });
+  if (!activity) throw validationError('Solo puedes archivar misiones aprobadas o canceladas.');
+  return activity;
+}
+
+async function listArchivedActivities(familyId) {
+  return Activity.find({ family: familyId, archivedAt: { $ne: null } }).populate('assignedTo', 'name').populate('validators', 'name').sort({ archivedAt: -1 }).lean();
 }
 
 async function getReviewableActivity(activityId, currentUser) {
@@ -296,5 +339,6 @@ module.exports = {
   listReviewableActivities,
   getReviewableActivity,
   reviewActivity,
-  setRecurringMissionActive
+  setRecurringMissionActive,
+  getManagedActivity, updateActivity, cancelActivity, archiveActivity, listArchivedActivities
 };
