@@ -47,6 +47,22 @@ async function updateAvatar(currentUser, avatar) {
   return avatar;
 }
 
+async function updatePreferences(currentUser, input) {
+  const allowed = {
+    color: ['violet', 'pink', 'blue', 'mint', 'sunset'],
+    mode: ['light', 'dark', 'auto'],
+    decoration: ['stars', 'hearts', 'lightning', 'none']
+  };
+  const preferences = {
+    color: String(input.color || ''), mode: String(input.mode || ''), decoration: String(input.decoration || '')
+  };
+  if (Object.entries(preferences).some(([key, value]) => !allowed[key].includes(value))) {
+    throw badRequest('Selecciona preferencias válidas.');
+  }
+  await User.findByIdAndUpdate(currentUser.id, { $set: { preferences } }, { runValidators: true });
+  return preferences;
+}
+
 function badRequest(message) { const error = new Error(message); error.status = 400; return error; }
 function forbidden() { const error = new Error('No tienes permiso para realizar esta acción.'); error.status = 403; return error; }
-module.exports = { listFamilyAccounts, changeOwnPassword, resetFamilyPassword, updateAvatar };
+module.exports = { listFamilyAccounts, changeOwnPassword, resetFamilyPassword, updateAvatar, updatePreferences };

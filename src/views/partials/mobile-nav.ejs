@@ -1,7 +1,7 @@
 <nav class="mobile-nav d-lg-none" aria-label="Navegación móvil">
   <a class="<%= activePage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
-  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.role === 'admin_player' ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
-  <% if (['admin_player', 'validator'].includes(currentUser?.role)) { %>
+  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= ['admin_player','player'].includes(currentUser?.role) ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
+  <% if (['admin_player', 'player', 'validator'].includes(currentUser?.role)) { %>
     <a class="<%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Revisiones</span></a>
   <% } %>
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Premios</span></a><% } %>

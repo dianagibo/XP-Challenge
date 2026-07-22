@@ -22,15 +22,23 @@ async function getFamilyMembers(familyId) {
 
 async function createActivity(input, currentUser) {
   const members = await getFamilyMembers(currentUser.familyId);
-  const assignableIds = new Set(members.filter((item) => item.role === 'player').map((item) => String(item.user._id)));
+  const isSharedChallenge = currentUser.role === 'player';
+  const assignableIds = new Set(members.filter((item) => isSharedChallenge ? item.role === 'admin_player' : item.role === 'player').map((item) => String(item.user._id)));
   const validatorIds = new Set(members.filter((item) => ['admin_player', 'validator'].includes(item.role)).map((item) => String(item.user._id)));
-  const selectedValidators = [...new Set([input.validators].flat().filter(Boolean))];
+  const selectedValidators = isSharedChallenge ? [currentUser.id] : [...new Set([input.validators].flat().filter(Boolean))];
 
   if (!assignableIds.has(String(input.assignedTo))) throw validationError('Selecciona una jugadora válida.');
-  if (!selectedValidators.length || selectedValidators.some((id) => !validatorIds.has(String(id)))) {
+  if (!isSharedChallenge && (!selectedValidators.length || selectedValidators.some((id) => !validatorIds.has(String(id))))) {
     throw validationError('Selecciona al menos una persona válida para revisar.');
   }
   if (!REWARDS[input.difficulty]) throw validationError('Selecciona una dificultad válida.');
+  if (isSharedChallenge && input.difficulty === 'epic') throw validationError('Selecciona una dificultad disponible para los retos de Sofi.');
+
+  // Shared challenges always use the fixed reward for the selected difficulty.
+  // This prevents a player from changing the submitted XP or coin values.
+  const reward = isSharedChallenge
+    ? REWARDS[input.difficulty]
+    : { xp: input.xpReward, coins: input.coinReward };
 
   const frequency = ['once', 'daily', 'weekly'].includes(input.frequency) ? input.frequency : 'once';
   const startDate = input.startDate || input.dueDate;
@@ -44,11 +52,12 @@ async function createActivity(input, currentUser) {
   const common = {
     family: currentUser.familyId, title: input.title, description: input.description,
     category: input.category, difficulty: input.difficulty,
-    xpReward: input.xpReward, coinReward: input.coinReward,
+    xpReward: reward.xp, coinReward: reward.coins,
     instructions: input.instructions, assignedTo: input.assignedTo,
     validators: selectedValidators, createdBy: currentUser.id
   };
 
+  if (isSharedChallenge && frequency !== 'once') throw validationError('Por ahora los retos compartidos se crean una vez.');
   if (frequency !== 'once') {
     const series = await RecurringMission.create({
       ...common, frequency, weekdays: frequency === 'weekly' ? weekdays : [],
@@ -67,23 +76,27 @@ async function createActivity(input, currentUser) {
 
   const activity = await Activity.create({
     ...common,
-    dueDate,
+    dueDate, status: isSharedChallenge ? 'pending_acceptance' : 'assigned'
   });
   await notificationService.createForRecipients({
     family: currentUser.familyId, recipients: [input.assignedTo], type: 'mission_assigned',
-    title: '¡Tienes una nueva misión!', message: `Te asignaron “${activity.title}”.`,
+      title: isSharedChallenge ? '¡Sofi te envió un reto!' : '¡Tienes una nueva misión!', message: isSharedChallenge ? `Sofi quiere retarte con “${activity.title}”.` : `Te asignaron “${activity.title}”.`,
     url: `/missions/${activity._id}`, eventKey: `mission:${activity._id}:assigned`
   });
   return activity;
 }
 
-async function listManagedActivities(familyId) {
+async function listManagedActivities(familyId, currentUser = null) {
   await materializeActiveSeries(familyId);
-  const [activities, recurringMissions] = await Promise.all([Activity.find({ family: familyId, archivedAt: null })
+  const activityFilter = { family: familyId, archivedAt: null };
+  if (currentUser?.role === 'player') activityFilter.createdBy = currentUser.id;
+  const seriesFilter = { family: familyId };
+  if (currentUser?.role === 'player') seriesFilter.createdBy = currentUser.id;
+  const [activities, recurringMissions] = await Promise.all([Activity.find(activityFilter)
     .populate('assignedTo', 'name username selectedAvatar')
     .populate('validators', 'name')
     .sort({ createdAt: -1 })
-    .lean(), RecurringMission.find({ family: familyId })
+    .lean(), RecurringMission.find(seriesFilter)
       .populate('assignedTo', 'name username selectedAvatar')
       .sort({ createdAt: -1 }).lean()]);
   return {
@@ -296,7 +309,7 @@ async function submitForApproval(activityId, completionNote, currentUser) {
   if (activity) {
     await notificationService.createForRecipients({
       family: activity.family, recipients: activity.validators, type: 'mission_submitted',
-      title: 'Misión lista para revisar', message: `Sofi envió “${activity.title}” para aprobación.`,
+      title: 'Misión lista para revisar', message: `${currentUser.name} envió “${activity.title}” para aprobación.`,
       url: `/missions/review/${activity._id}`, eventKey: `mission:${activity._id}:submitted:${activity.submittedAt.getTime()}`
     });
     return activity;
@@ -310,6 +323,25 @@ async function submitForApproval(activityId, completionNote, currentUser) {
 
   if (!existing) throw notFoundError();
   throw validationError('Esta misión no puede enviarse para aprobación en su estado actual.');
+}
+
+async function respondToSharedMission(activityId, decision, note, currentUser) {
+  if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
+  const message = String(note || '').trim();
+  if (message.length > 500) throw validationError('Tu mensaje debe tener máximo 500 caracteres.');
+  if (decision === 'return' && !message) throw validationError('Cuéntale a Sofi por qué quieres devolver el reto.');
+  const update = decision === 'accept'
+    ? { status: 'assigned', acceptedAt: new Date(), acceptanceNote: '' }
+    : { status: 'canceled', canceledAt: new Date(), canceledBy: currentUser.id, acceptanceNote: message };
+  const activity = await Activity.findOneAndUpdate({ _id: activityId, family: currentUser.familyId, assignedTo: currentUser.id, status: 'pending_acceptance' }, { $set: update }, { new: true });
+  if (!activity) throw validationError('Este reto ya fue respondido o no está disponible.');
+  await notificationService.createForRecipients({
+    family: activity.family, recipients: [activity.createdBy], type: decision === 'accept' ? 'mission_accepted' : 'mission_returned',
+    title: decision === 'accept' ? '¡Diana aceptó tu reto!' : 'Diana devolvió tu reto',
+    message: decision === 'accept' ? `Diana aceptó “${activity.title}”.` : message,
+    url: decision === 'accept' ? `/missions/manage` : `/missions/manage`, eventKey: `mission:${activity._id}:${decision}`
+  });
+  return activity;
 }
 
 async function listReviewableActivities(currentUser) {
@@ -450,6 +482,7 @@ module.exports = {
   listManagedActivities,
   listPlayerActivities,
   getPlayerActivity,
+  respondToSharedMission,
   submitForApproval,
   listReviewableActivities,
   getReviewableActivity,

@@ -47,7 +47,7 @@ async function getPlayerProgress(playerId, familyId) {
 }
 
 async function getFamilyProgress(familyId) {
-  const memberships = await Membership.find({ family: familyId, role: 'player', isActive: true })
+  const memberships = await Membership.find({ family: familyId, role: { $in: ['player', 'admin_player'] }, isActive: true })
     .populate({ path: 'user', match: { isActive: true }, select: 'name selectedAvatar' }).lean();
   return Promise.all(memberships.filter((item) => item.user).map((item) => getPlayerProgress(item.user._id, familyId)));
 }

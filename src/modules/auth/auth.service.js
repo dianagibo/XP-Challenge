@@ -19,6 +19,7 @@ async function authenticate(username, password) {
     name: user.name,
     username: user.username,
     avatar: user.selectedAvatar,
+    preferences: user.preferences || { color: 'violet', mode: 'light', decoration: 'stars' },
     role: membership.role,
     familyId: membership.family.id,
     familyName: membership.family.name

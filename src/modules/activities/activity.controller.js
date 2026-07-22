@@ -27,7 +27,7 @@ async function create(request, response, next) {
 
 async function showManage(request, response, next) {
   try {
-    const { activities, recurringMissions } = await activityService.listManagedActivities(request.session.user.familyId);
+    const { activities, recurringMissions } = await activityService.listManagedActivities(request.session.user.familyId, request.session.user);
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/manage-missions', {
@@ -161,6 +161,22 @@ async function submitForApproval(request, response, next) {
   }
 }
 
+async function acceptSharedMission(request, response, next) {
+  try {
+    await activityService.respondToSharedMission(request.params.activityId, 'accept', '', request.session.user);
+    request.session.flash = { type: 'success', message: '¡Reto aceptado! Ya aparece entre tus misiones.' };
+    return response.redirect('/');
+  } catch (error) { if (error.status === 400) { request.session.flash = { type: 'error', message: error.message }; return response.redirect('/'); } return next(error); }
+}
+
+async function returnSharedMission(request, response, next) {
+  try {
+    await activityService.respondToSharedMission(request.params.activityId, 'return', request.body.acceptanceNote, request.session.user);
+    request.session.flash = { type: 'success', message: 'El reto fue devuelto a Sofi con tu mensaje.' };
+    return response.redirect('/');
+  } catch (error) { if (error.status === 400) { request.session.flash = { type: 'error', message: error.message }; return response.redirect('/'); } return next(error); }
+}
+
 async function showReviewQueue(request, response, next) {
   try {
     const activities = await activityService.listReviewableActivities(request.session.user);
@@ -183,14 +199,14 @@ async function showReviewDetails(request, response, next) {
 
 async function review(request, response, next) {
   try {
-    await activityService.reviewActivity(
+    const activity = await activityService.reviewActivity(
       request.params.activityId, request.body.decision, request.body.reviewNote, request.session.user
     );
     request.session.flash = {
       type: 'success',
       message: request.body.decision === 'approved'
-        ? '¡Misión aprobada! Sofi recibió sus XP y monedas.'
-        : 'Se solicitaron ajustes a Sofi.'
+        ? `¡Misión aprobada! ${activity?.assignedTo?.name || 'La jugadora'} recibió sus XP y monedas.`
+        : 'Se solicitaron ajustes.'
     };
     return response.redirect('/missions/review');
   } catch (error) {
@@ -212,8 +228,9 @@ async function renderCreate(response, currentUser, values = {}, error = null, st
   return response.status(status).render('pages/create-mission', {
     pageTitle: 'Crear misión', activePage: 'missions', values, error,
     rewards: activityService.REWARDS, categories: CATEGORIES,
-    players: members.filter((item) => item.role === 'player'),
-    validators: members.filter((item) => ['admin_player', 'validator'].includes(item.role)),
+    players: members.filter((item) => currentUser.role === 'player' ? item.role === 'admin_player' : item.role === 'player'),
+    validators: currentUser.role === 'player' ? members.filter((item) => String(item.user._id) === String(currentUser.id)) : members.filter((item) => ['admin_player', 'validator'].includes(item.role)),
+    isSharedChallenge: currentUser.role === 'player',
     minimumDate: new Date().toISOString().slice(0, 10)
   });
 }
@@ -241,5 +258,6 @@ module.exports = {
   showCreate, create, showManage, showDetails, submitForApproval,
   showReviewQueue, showReviewDetails, review, setRecurringActive,
   showEdit, update, cancel, archive, showArchive,
-  showEditRecurring, updateRecurring, endRecurring
+  showEditRecurring, updateRecurring, endRecurring,
+  acceptSharedMission, returnSharedMission
 };

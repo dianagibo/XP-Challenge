@@ -23,27 +23,26 @@ async function showDashboard(request, response, next) {
     Object.assign(game.player, rewards);
     let activities;
     let activeGoal = null;
-    if (request.session.user.role === 'player') {
+    if (['player', 'admin_player'].includes(request.session.user.role)) {
       const [playerActivities, progress, goals] = await Promise.all([
         activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId),
         progressService.getPlayerProgress(request.session.user.id, request.session.user.familyId),
         weeklyGoalService.listGoals(request.session.user)
       ]);
       activities = playerActivities;
-      activeGoal = goals.find((goal) => goal.status === 'active') || goals.find((goal) => goal.status === 'completed') || null;
+      const ownGoals = goals.filter((goal) => String(goal.player?._id || goal.player) === String(request.session.user.id));
+      activeGoal = ownGoals.find((goal) => goal.status === 'active') || ownGoals.find((goal) => goal.status === 'completed') || null;
       game.streak = {
         count: progress.stats.currentStreak,
         label: progress.stats.currentStreak === 1 ? 'día' : 'días',
         best: progress.stats.bestStreak
       };
-    } else {
-      ({ activities } = await activityService.listManagedActivities(request.session.user.familyId));
     }
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/dashboard', {
       pageTitle: 'Mi aventura', activePage: 'home', game, activities,
-      canManageMissions: request.session.user.role === 'admin_player', activeGoal, flash
+      canManageMissions: request.session.user.role === 'admin_player', canCreateMissions: ['admin_player','player'].includes(request.session.user.role), activeGoal, flash
     });
   } catch (error) {
     return next(error);

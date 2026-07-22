@@ -1,6 +1,15 @@
 <%- include('../partials/head') %>
 <div class="app-shell"><%- include('../partials/sidebar') %><main class="game-main mission-workspace">
-  <header class="workspace-header"><div><span class="eyebrow">SEGURIDAD Y PERFIL</span><h1>Configuración de cuenta</h1><p>Actualiza tu acceso sin compartir ni mostrar contraseñas.</p></div><a class="secondary-action" href="/avatars">Cambiar avatar</a></header>
+  <header class="workspace-header"><div><span class="eyebrow">SEGURIDAD Y PERFIL</span><h1>Configuración de cuenta</h1><p>Personaliza tu aventura y administra tu acceso.</p></div><a class="secondary-action" href="/avatars">Cambiar avatar</a></header>
+  <% if (['admin_player','player'].includes(currentUser.role)) { %>
+  <section class="form-card preference-card"><div class="form-card-heading"><span><i class="bi bi-palette-fill"></i></span><div><h2>Mi estilo</h2><p>Estas opciones se guardan solo para tu perfil.</p></div></div>
+    <form class="preference-form" method="post" action="/account/preferences"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label class="field">Color principal<select name="color"><% [['violet','Violeta'],['pink','Rosa'],['blue','Azul'],['mint','Menta'],['sunset','Atardecer']].forEach(([value,label]) => { %><option value="<%= value %>" <%= (currentUser.preferences?.color || 'violet') === value ? 'selected' : '' %>><%= label %></option><% }) %></select></label>
+      <label class="field">Apariencia<select name="mode"><% [['light','Clara'],['dark','Oscura'],['auto','Según el dispositivo']].forEach(([value,label]) => { %><option value="<%= value %>" <%= (currentUser.preferences?.mode || 'light') === value ? 'selected' : '' %>><%= label %></option><% }) %></select></label>
+      <label class="field">Decoración<select name="decoration"><% [['stars','Estrellas'],['hearts','Corazones'],['lightning','Rayos'],['none','Sin decoración']].forEach(([value,label]) => { %><option value="<%= value %>" <%= (currentUser.preferences?.decoration || 'stars') === value ? 'selected' : '' %>><%= label %></option><% }) %></select></label>
+      <button class="primary-action" type="submit"><i class="bi bi-magic"></i> Guardar estilo</button>
+    </form>
+  </section><% } %>
   <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
   <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle-fill"></i><%= error %></div><% } %>
   <section class="form-card"><div class="form-card-heading"><span><i class="bi bi-key-fill"></i></span><div><h2>Cambiar mi contraseña</h2><p>Se cerrarán las demás sesiones abiertas de tu cuenta.</p></div></div>

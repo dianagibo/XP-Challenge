@@ -19,11 +19,13 @@ const activitySchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: {
     type: String,
-    enum: ['assigned', 'pending_validation', 'approved', 'changes_requested', 'canceled'],
+    enum: ['pending_acceptance', 'assigned', 'pending_validation', 'approved', 'changes_requested', 'canceled'],
     default: 'assigned',
     index: true
   },
   completionNote: { type: String, trim: true, maxlength: 500, default: '' },
+  acceptanceNote: { type: String, trim: true, maxlength: 500, default: '' },
+  acceptedAt: { type: Date, default: null },
   submittedAt: { type: Date, default: null },
   reviewNote: { type: String, trim: true, maxlength: 500, default: '' },
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
