@@ -12,6 +12,7 @@
     <% if (['admin_player', 'validator'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Revisiones</span></a><% } %>
     <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'catalog' ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Catálogo</span></a><% } %>
     <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'rewards' ? 'active' : '' %>" href="/rewards"><i class="bi bi-stars"></i><span>Historial</span></a><% } %>
+    <a class="nav-link <%= activePage === 'bonuses' ? 'active' : '' %>" href="/bonuses"><i class="bi bi-award-fill"></i><span>Reconocimientos</span></a>
     <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
     <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas semanales</span></a><% } %>
     <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/avatars">
