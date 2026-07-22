@@ -32,9 +32,13 @@ async function createActivity(input, currentUser) {
     throw validationError('Selecciona al menos una persona válida para revisar.');
   }
   if (!REWARDS[input.difficulty]) throw validationError('Selecciona una dificultad válida.');
-  if (isSharedChallenge && (Number(input.xpReward) > 50 || Number(input.coinReward) > 10)) {
-    throw validationError('Los retos creados por Sofi permiten máximo 50 XP y 10 monedas.');
-  }
+  if (isSharedChallenge && input.difficulty === 'epic') throw validationError('Selecciona una dificultad disponible para los retos de Sofi.');
+
+  // Shared challenges always use the fixed reward for the selected difficulty.
+  // This prevents a player from changing the submitted XP or coin values.
+  const reward = isSharedChallenge
+    ? REWARDS[input.difficulty]
+    : { xp: input.xpReward, coins: input.coinReward };
 
   const frequency = ['once', 'daily', 'weekly'].includes(input.frequency) ? input.frequency : 'once';
   const startDate = input.startDate || input.dueDate;
@@ -48,7 +52,7 @@ async function createActivity(input, currentUser) {
   const common = {
     family: currentUser.familyId, title: input.title, description: input.description,
     category: input.category, difficulty: input.difficulty,
-    xpReward: input.xpReward, coinReward: input.coinReward,
+    xpReward: reward.xp, coinReward: reward.coins,
     instructions: input.instructions, assignedTo: input.assignedTo,
     validators: selectedValidators, createdBy: currentUser.id
   };

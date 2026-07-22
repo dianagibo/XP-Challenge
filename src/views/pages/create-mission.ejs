@@ -15,7 +15,7 @@
         <div class="form-card-heading"><span>1</span><div><h2>Detalles de la misión</h2><p>Haz que el objetivo sea fácil de entender.</p></div></div>
         <div class="form-grid">
           <label class="field field-wide">Título<input name="title" required maxlength="100" value="<%= values.title || '' %>" placeholder="Completar la tarea de matemáticas"></label>
-          <label class="field field-wide">Descripción<textarea name="description" required maxlength="500" rows="3" placeholder="¿Qué debe lograr Sofi?"><%= values.description || '' %></textarea></label>
+          <label class="field field-wide">Descripción<textarea name="description" required maxlength="500" rows="3" placeholder="¿Qué debe lograr <%= isSharedChallenge ? 'Diana' : 'Sofi' %>?"><%= values.description || '' %></textarea></label>
           <label class="field">Categoría<select name="category" required><option value="">Elige una categoría</option><% categories.forEach((category) => { %><option value="<%= category.value %>" <%= values.category === category.value ? 'selected' : '' %>><%= category.label %></option><% }) %></select></label>
           <% if (isSharedChallenge) { %><input type="hidden" name="frequency" value="once"><% } else { %><label class="field">Frecuencia<select id="missionFrequency" name="frequency"><option value="once" <%= (values.frequency || 'once') === 'once' ? 'selected' : '' %>>Una vez</option><option value="daily" <%= values.frequency === 'daily' ? 'selected' : '' %>>Todos los días</option><option value="weekly" <%= values.frequency === 'weekly' ? 'selected' : '' %>>Días seleccionados</option></select></label><% } %>
           <label class="field">Fecha de inicio<input type="date" name="startDate" min="<%= minimumDate %>" required value="<%= values.startDate || values.dueDate || minimumDate %>"></label>
@@ -28,15 +28,21 @@
       <section class="form-card">
         <div class="form-card-heading"><span>2</span><div><h2>Reto y premios</h2><p>La dificultad sugiere una cantidad equilibrada de XP y monedas.</p></div></div>
         <div class="difficulty-grid">
-          <% Object.entries(rewards).forEach(([difficulty, reward]) => { %>
+          <% Object.entries(rewards).filter(([difficulty]) => !isSharedChallenge || difficulty !== 'epic').forEach(([difficulty, reward]) => { %>
             <label class="difficulty-option"><input type="radio" name="difficulty" value="<%= difficulty %>" <%= (values.difficulty || 'easy') === difficulty ? 'checked' : '' %> required><span><strong><%= labelFor('difficulty', difficulty) %></strong><small>+<%= reward.xp %> XP · <%= reward.coins %> monedas</small></span></label>
           <% }) %>
         </div>
+        <% if (isSharedChallenge) { %>
+        <div class="reward-fields">
+          <p><i class="bi bi-info-circle"></i> Elige una dificultad y el premio se asignará automáticamente. Los XP y las monedas no se pueden modificar.</p>
+        </div>
+        <% } else { %>
         <div class="reward-fields">
           <label class="field">Premio en XP<input id="xpReward" type="number" name="xpReward" min="1" max="<%= isSharedChallenge ? 50 : 500 %>" required value="<%= values.xpReward || rewards[values.difficulty || 'easy'].xp %>"></label>
           <label class="field">Premio en monedas<input id="coinReward" type="number" name="coinReward" min="0" max="<%= isSharedChallenge ? 10 : 100 %>" required value="<%= values.coinReward || rewards[values.difficulty || 'easy'].coins %>"></label>
           <p><i class="bi bi-info-circle"></i> Los XP aumentan tu progreso y no se gastan. Las monedas se pueden cambiar por recompensas.</p>
         </div>
+        <% } %>
       </section>
 
       <section class="form-card">
