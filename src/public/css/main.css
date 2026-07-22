@@ -168,8 +168,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .shared-challenge-callout{display:flex;gap:1rem;align-items:center;margin:1.25rem 0;padding:1rem;border-radius:1rem;background:var(--purple-soft);color:var(--purple)}.shared-challenge-callout>i{font-size:2rem}.shared-challenge-callout p{margin:.2rem 0 0;color:var(--muted)}.shared-response-grid{display:grid;grid-template-columns:auto minmax(280px,1fr);align-items:start;gap:1rem}.shared-response-grid form:first-child{padding-top:.2rem}@media(max-width:767px){.shared-response-grid{grid-template-columns:1fr}.shared-response-grid .primary-action{width:100%}}
 .catalog-admin-actions{display:grid;gap:.6rem}
 /* Weekly family report */
-.weekly-report-page { padding-bottom: 6rem; }
-.weekly-report-scroll { width: 100%; overflow-x: auto; padding-bottom: .75rem; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.weekly-report-page { min-width: 0; padding-bottom: 6rem; }
+.weekly-report-scroll { display: block; width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding-bottom: .75rem; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
 .weekly-report-content { min-width: 720px; }
 .report-header, .week-selector { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .report-header { margin-bottom: 1.25rem; }
