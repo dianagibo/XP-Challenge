@@ -2,7 +2,7 @@ const rewardService = require('./reward.service');
 
 async function showCatalog(request, response, next) {
   try {
-    const isAdmin = request.session.user.role === 'admin_player';
+    const isAdmin = Boolean(request.session.user.permissions?.manageRewards);
     const [rewards, catalog, redemptions] = await Promise.all([
       rewardService.getPlayerRewards(request.session.user.id),
       rewardService.listCatalog(request.session.user.familyId, isAdmin),

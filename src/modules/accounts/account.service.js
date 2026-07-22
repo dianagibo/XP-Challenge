@@ -24,6 +24,7 @@ async function changeOwnPassword(currentUser, currentPassword, newPassword, conf
   if (!user || !(await bcrypt.compare(String(currentPassword || ''), user.passwordHash))) throw badRequest('La contraseña actual es incorrecta.');
   if (await bcrypt.compare(newPassword, user.passwordHash)) throw badRequest('La nueva contraseña debe ser diferente a la actual.');
   user.passwordHash = await bcrypt.hash(newPassword, 12);
+  user.mustChangePassword = false;
   user.sessionVersion = (user.sessionVersion || 0) + 1;
   await user.save();
   return user.sessionVersion;
@@ -65,4 +66,4 @@ async function updatePreferences(currentUser, input) {
 
 function badRequest(message) { const error = new Error(message); error.status = 400; return error; }
 function forbidden() { const error = new Error('No tienes permiso para realizar esta acción.'); error.status = 403; return error; }
-module.exports = { listFamilyAccounts, changeOwnPassword, resetFamilyPassword, updateAvatar, updatePreferences };
+module.exports = { listFamilyAccounts, changeOwnPassword, resetFamilyPassword, updateAvatar, updatePreferences, validatePassword };

@@ -1,15 +1,16 @@
 <nav class="mobile-nav d-lg-none" aria-label="Navegación móvil">
   <a class="<%= activePage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
-  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= ['admin_player','player'].includes(currentUser?.role) ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
-  <% if (['admin_player', 'player', 'validator'].includes(currentUser?.role)) { %>
+  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.permissions?.createMissions ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
+  <% if (currentUser?.permissions?.reviewOwnMissions || currentUser?.permissions?.validateResponsibilities) { %>
     <a class="<%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Revisiones</span></a>
   <% } %>
-  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Premios</span></a><% } %>
-  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
+  <% if (currentUser?.permissions?.participate) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Premios</span></a><% } %>
+  <% if (currentUser?.permissions?.participate) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
   <a class="<%= activePage === 'bonuses' ? 'active' : '' %>" href="/bonuses"><i class="bi bi-award-fill"></i><span>Bonos</span></a>
-  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas</span></a><% } %>
-  <a class="<%= activePage === 'report' ? 'active' : '' %>" href="/weekly-report"><i class="bi bi-bar-chart-fill"></i><span>Reporte</span></a>
+  <% if (currentUser?.permissions?.participate) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas</span></a><% } %>
+  <% if (currentUser?.permissions?.viewFamilyReport) { %><a class="<%= activePage === 'report' ? 'active' : '' %>" href="/weekly-report"><i class="bi bi-bar-chart-fill"></i><span>Reporte</span></a><% } %>
   <a class="<%= ['profile','settings'].includes(activePage) ? 'active' : '' %>" href="/account/settings"><i class="bi bi-person-fill"></i><span>Cuenta</span></a>
+  <% if (currentUser?.permissions?.manageUsers) { %><a class="<%= activePage === 'users' ? 'active' : '' %>" href="/family-users"><i class="bi bi-people-fill"></i><span>Usuarios</span></a><% } %>
   <a class="mobile-notification-link <%= activePage === 'notifications' ? 'active' : '' %>" href="/notifications"><i class="bi bi-bell-fill"></i><span>Avisos</span><% if (unreadNotificationCount > 0) { %><strong class="notification-badge"><%= unreadNotificationCount > 99 ? '99+' : unreadNotificationCount %></strong><% } %></a>
   <form method="post" action="/auth/logout">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">

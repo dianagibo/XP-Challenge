@@ -1,11 +1,11 @@
 const router = require('express').Router();
 const controller = require('./bonus.controller');
 const { requireAuthentication } = require('../../middleware/authentication');
-const { allowRoles } = require('../../middleware/authorization');
+const { allowRoles, requirePermission } = require('../../middleware/authorization');
 router.use(requireAuthentication);
-router.get('/', allowRoles('admin_player', 'player', 'validator'), controller.showList);
-router.post('/', allowRoles('admin_player'), controller.create);
-router.get('/:id', allowRoles('admin_player', 'player', 'validator'), controller.showDetail);
-router.post('/:id/edit', allowRoles('admin_player'), controller.update);
-router.post('/:id/void', allowRoles('admin_player'), controller.voidBonus);
+router.get('/', allowRoles('admin_player', 'player', 'validator', 'player_validator'), controller.showList);
+router.post('/', requirePermission('createBonuses'), controller.create);
+router.get('/:id', allowRoles('admin_player', 'player', 'validator', 'player_validator'), controller.showDetail);
+router.post('/:id/edit', requirePermission('createBonuses'), controller.update);
+router.post('/:id/void', requirePermission('createBonuses'), controller.voidBonus);
 module.exports = router;

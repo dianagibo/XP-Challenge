@@ -8,18 +8,19 @@
     <a class="nav-link <%= activePage === 'home' ? 'active' : '' %>" href="/">
       <i class="bi bi-grid-fill"></i><span>Inicio</span>
     </a>
-    <a class="nav-link <%= activePage === 'missions' ? 'active' : '' %>" href="<%= ['admin_player','player'].includes(currentUser?.role) ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
-    <% if (['admin_player', 'player', 'validator'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Revisiones</span></a><% } %>
-    <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'catalog' ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Catálogo</span></a><% } %>
-    <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'rewards' ? 'active' : '' %>" href="/rewards"><i class="bi bi-stars"></i><span>Historial</span></a><% } %>
+    <a class="nav-link <%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.permissions?.createMissions ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
+    <% if (currentUser?.permissions?.reviewOwnMissions || currentUser?.permissions?.validateResponsibilities) { %><a class="nav-link <%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Revisiones</span></a><% } %>
+    <% if (currentUser?.permissions?.participate) { %><a class="nav-link <%= activePage === 'catalog' ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Catálogo</span></a><% } %>
+    <% if (currentUser?.permissions?.participate) { %><a class="nav-link <%= activePage === 'rewards' ? 'active' : '' %>" href="/rewards"><i class="bi bi-stars"></i><span>Historial</span></a><% } %>
     <a class="nav-link <%= activePage === 'bonuses' ? 'active' : '' %>" href="/bonuses"><i class="bi bi-award-fill"></i><span>Reconocimientos</span></a>
-    <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
-    <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas semanales</span></a><% } %>
-    <a class="nav-link <%= activePage === 'report' ? 'active' : '' %>" href="/weekly-report"><i class="bi bi-bar-chart-fill"></i><span>Reporte semanal</span></a>
+    <% if (currentUser?.permissions?.participate) { %><a class="nav-link <%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
+    <% if (currentUser?.permissions?.participate) { %><a class="nav-link <%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas semanales</span></a><% } %>
+    <% if (currentUser?.permissions?.viewFamilyReport) { %><a class="nav-link <%= activePage === 'report' ? 'active' : '' %>" href="/weekly-report"><i class="bi bi-bar-chart-fill"></i><span>Reporte semanal</span></a><% } %>
     <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/avatars">
       <i class="bi bi-person-fill"></i><span>Perfil</span>
     </a>
     <a class="nav-link <%= activePage === 'settings' ? 'active' : '' %>" href="/account/settings"><i class="bi bi-gear-fill"></i><span>Configuración</span></a>
+    <% if (currentUser?.permissions?.manageUsers) { %><a class="nav-link <%= activePage === 'users' ? 'active' : '' %>" href="/family-users"><i class="bi bi-people-fill"></i><span>Usuarios</span></a><% } %>
     <a class="nav-link notification-nav-link <%= activePage === 'notifications' ? 'active' : '' %>" href="/notifications">
       <i class="bi bi-bell-fill"></i><span>Notificaciones</span>
       <% if (unreadNotificationCount > 0) { %><strong class="notification-badge" aria-label="<%= unreadNotificationCount %> sin leer"><%= unreadNotificationCount > 99 ? '99+' : unreadNotificationCount %></strong><% } %>

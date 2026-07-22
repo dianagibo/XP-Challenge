@@ -5,7 +5,7 @@ const progressService = require('../modules/progress/progress.service');
 const weeklyGoalService = require('../modules/goals/weekly-goal.service');
 
 async function showDashboard(request, response, next) {
-  if (request.session.user.role === 'validator') {
+  if (!request.session.user.permissions?.participate) {
     try {
       const activities = await activityService.listReviewableActivities(request.session.user);
       const flash = request.session.flash;
@@ -23,7 +23,7 @@ async function showDashboard(request, response, next) {
     Object.assign(game.player, rewards);
     let activities;
     let activeGoal = null;
-    if (['player', 'admin_player'].includes(request.session.user.role)) {
+    if (request.session.user.permissions?.participate) {
       const [playerActivities, progress, goals] = await Promise.all([
         activityService.listPlayerActivities(request.session.user.id, request.session.user.familyId),
         progressService.getPlayerProgress(request.session.user.id, request.session.user.familyId),
@@ -42,7 +42,7 @@ async function showDashboard(request, response, next) {
     delete request.session.flash;
     return response.render('pages/dashboard', {
       pageTitle: 'Mi aventura', activePage: 'home', game, activities,
-      canManageMissions: request.session.user.role === 'admin_player', canCreateMissions: ['admin_player','player'].includes(request.session.user.role), activeGoal, flash
+      canManageMissions: request.session.user.permissions?.createMissions, canCreateMissions: request.session.user.permissions?.createMissions, activeGoal, flash
     });
   } catch (error) {
     return next(error);
@@ -74,7 +74,7 @@ async function showRewards(request, response, next) {
 
 async function showProgress(request, response, next) {
   try {
-    if (request.session.user.role === 'admin_player') {
+    if (request.session.user.permissions?.manageUsers) {
       const players = await progressService.getFamilyProgress(request.session.user.familyId);
       return response.render('pages/family-progress', {
         pageTitle: 'Progreso familiar', activePage: 'progress', players
