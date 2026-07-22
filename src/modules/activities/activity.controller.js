@@ -51,6 +51,39 @@ async function setRecurringActive(request, response, next) {
   } catch (error) { return next(error); }
 }
 
+async function showEditRecurring(request, response, next) {
+  try {
+    const series = await activityService.getRecurringMission(request.params.seriesId, request.session.user);
+    if (series.endedAt) {
+      request.session.flash = { type: 'error', message: 'Las series finalizadas se conservan como historial y no admiten cambios.' };
+      return response.redirect('/missions/manage');
+    }
+    return renderRecurring(response, request.session.user, series);
+  } catch (error) { return next(error); }
+}
+
+async function updateRecurring(request, response, next) {
+  try {
+    await activityService.updateRecurringMission(request.params.seriesId, request.body, request.session.user);
+    request.session.flash = { type: 'success', message: request.body.updatePending === 'yes' ? 'Serie y próximas misiones pendientes actualizadas.' : 'Serie actualizada. Las misiones ya generadas conservaron sus datos.' };
+    return response.redirect('/missions/manage');
+  } catch (error) {
+    if (error.status === 400 || error.name === 'ValidationError') return renderRecurring(response, request.session.user, { ...request.body, _id: request.params.seriesId }, error.message, 400);
+    return next(error);
+  }
+}
+
+async function endRecurring(request, response, next) {
+  try {
+    await activityService.endRecurringMission(request.params.seriesId, request.session.user);
+    request.session.flash = { type: 'success', message: 'Serie finalizada. Su historial completado permanece intacto.' };
+    return response.redirect('/missions/manage');
+  } catch (error) {
+    if (error.status === 400) { request.session.flash = { type: 'error', message: error.message }; return response.redirect('/missions/manage'); }
+    return next(error);
+  }
+}
+
 async function showEdit(request, response, next) {
   try {
     const activity = await activityService.getManagedActivity(request.params.activityId, request.session.user);
@@ -195,8 +228,18 @@ async function renderEdit(response, currentUser, values, error = null, status = 
   });
 }
 
+async function renderRecurring(response, currentUser, values, error = null, status = 200) {
+  const members = await activityService.getFamilyMembers(currentUser.familyId);
+  return response.status(status).render('pages/edit-recurring-mission', {
+    pageTitle: 'Editar serie recurrente', activePage: 'missions', values, error,
+    rewards: activityService.REWARDS, categories: CATEGORIES,
+    validators: members.filter((item) => ['admin_player', 'validator'].includes(item.role))
+  });
+}
+
 module.exports = {
   showCreate, create, showManage, showDetails, submitForApproval,
   showReviewQueue, showReviewDetails, review, setRecurringActive,
-  showEdit, update, cancel, archive, showArchive
+  showEdit, update, cancel, archive, showArchive,
+  showEditRecurring, updateRecurring, endRecurring
 };

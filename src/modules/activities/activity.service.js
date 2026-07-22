@@ -74,7 +74,25 @@ async function listManagedActivities(familyId) {
     .lean(), RecurringMission.find({ family: familyId })
       .populate('assignedTo', 'name username selectedAvatar')
       .sort({ createdAt: -1 }).lean()]);
-  return { activities, recurringMissions };
+  return {
+    activities,
+    recurringMissions: recurringMissions.map((series) => ({
+      ...series,
+      nextOccurrence: getNextOccurrence(series)
+    }))
+  };
+}
+
+function getNextOccurrence(series) {
+  if (!series.isActive || series.endedAt) return null;
+  const today = localDateString(new Date());
+  const firstDate = series.startDate > today ? series.startDate : today;
+  for (let cursor = fromDateString(firstDate), days = 0; days <= 366; cursor.setDate(cursor.getDate() + 1), days += 1) {
+    const date = localDateString(cursor);
+    if (series.endDate && date > series.endDate) return null;
+    if (series.frequency === 'daily' || series.weekdays.includes(cursor.getDay())) return date;
+  }
+  return null;
 }
 
 async function listPlayerActivities(userId, familyId) {
@@ -87,10 +105,10 @@ async function listPlayerActivities(userId, familyId) {
 async function setRecurringMissionActive(seriesId, isActive, currentUser) {
   if (!Activity.db.base.isValidObjectId(seriesId)) throw notFoundError();
   const series = await RecurringMission.findOneAndUpdate(
-    { _id: seriesId, family: currentUser.familyId },
+    { _id: seriesId, family: currentUser.familyId, endedAt: null },
     { $set: { isActive } }, { new: true }
   );
-  if (!series) throw notFoundError();
+  if (!series) throw validationError('Esta serie fue finalizada o ya no está disponible.');
   if (isActive) {
     await materializeSeries(series);
   } else {
@@ -103,8 +121,67 @@ async function setRecurringMissionActive(seriesId, isActive, currentUser) {
   return series;
 }
 
+async function getRecurringMission(seriesId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(seriesId)) throw notFoundError();
+  const series = await RecurringMission.findOne({ _id: seriesId, family: currentUser.familyId }).lean();
+  if (!series) throw notFoundError();
+  return series;
+}
+
+async function updateRecurringMission(seriesId, input, currentUser) {
+  const existing = await getRecurringMission(seriesId, currentUser);
+  if (existing.endedAt) throw validationError('Una serie finalizada se conserva como historial y ya no puede editarse.');
+
+  const members = await getFamilyMembers(currentUser.familyId);
+  const validatorIds = new Set(members.filter((item) => ['admin_player', 'validator'].includes(item.role)).map((item) => String(item.user._id)));
+  const selectedValidators = [...new Set([input.validators].flat().filter(Boolean))];
+  if (!selectedValidators.length || selectedValidators.some((id) => !validatorIds.has(String(id)))) throw validationError('Selecciona al menos una persona válida para revisar.');
+  if (!REWARDS[input.difficulty]) throw validationError('Selecciona una dificultad válida.');
+  const frequency = ['daily', 'weekly'].includes(input.frequency) ? input.frequency : null;
+  if (!frequency) throw validationError('Selecciona una frecuencia válida.');
+  const weekdays = [...new Set([input.weekdays].flat().filter((value) => value !== undefined).map(Number))];
+  if (frequency === 'weekly' && (!weekdays.length || weekdays.some((day) => !Number.isInteger(day) || day < 0 || day > 6))) {
+    throw validationError('Elige al menos un día válido para la misión semanal.');
+  }
+  validateSeriesDateRange(input.startDate, input.endDate);
+
+  const changes = {
+    title: input.title, description: input.description, category: input.category,
+    difficulty: input.difficulty, xpReward: Number(input.xpReward), coinReward: Number(input.coinReward),
+    instructions: input.instructions || '', validators: selectedValidators, frequency,
+    weekdays: frequency === 'weekly' ? weekdays : [], startDate: input.startDate,
+    endDate: input.endDate || null
+  };
+  const series = await RecurringMission.findOneAndUpdate(
+    { _id: seriesId, family: currentUser.familyId, endedAt: null }, { $set: changes },
+    { new: true, runValidators: true }
+  );
+  if (!series) throw validationError('La serie ya no puede editarse.');
+
+  if (input.updatePending === 'yes') {
+    await Activity.deleteMany({
+      recurringMission: series._id, occurrenceDate: { $gte: localDateString(new Date()) }, status: 'assigned'
+    });
+  }
+  await materializeSeries(series);
+  return series;
+}
+
+async function endRecurringMission(seriesId, currentUser) {
+  if (!Activity.db.base.isValidObjectId(seriesId)) throw notFoundError();
+  const series = await RecurringMission.findOneAndUpdate(
+    { _id: seriesId, family: currentUser.familyId, endedAt: null },
+    { $set: { isActive: false, endedAt: new Date(), endedBy: currentUser.id } }, { new: true }
+  );
+  if (!series) throw validationError('Esta serie ya fue finalizada o no está disponible.');
+  await Activity.deleteMany({
+    recurringMission: series._id, occurrenceDate: { $gte: localDateString(new Date()) }, status: 'assigned'
+  });
+  return series;
+}
+
 async function materializeActiveSeries(familyId) {
-  const series = await RecurringMission.find({ family: familyId, isActive: true });
+  const series = await RecurringMission.find({ family: familyId, isActive: true, endedAt: null });
   await Promise.all(series.map(materializeSeries));
 }
 
@@ -143,6 +220,15 @@ function validateDateRange(startDate, endDate) {
   const today = localDateString(new Date());
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(startDate || '')) || startDate < today) {
     throw validationError('La fecha de inicio debe ser hoy o posterior.');
+  }
+  if (endDate && (!/^\d{4}-\d{2}-\d{2}$/.test(endDate) || endDate < startDate)) {
+    throw validationError('La fecha final debe ser igual o posterior a la fecha de inicio.');
+  }
+}
+
+function validateSeriesDateRange(startDate, endDate) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(startDate || ''))) {
+    throw validationError('Selecciona una fecha de inicio válida.');
   }
   if (endDate && (!/^\d{4}-\d{2}-\d{2}$/.test(endDate) || endDate < startDate)) {
     throw validationError('La fecha final debe ser igual o posterior a la fecha de inicio.');
@@ -340,5 +426,6 @@ module.exports = {
   getReviewableActivity,
   reviewActivity,
   setRecurringMissionActive,
+  getRecurringMission, updateRecurringMission, endRecurringMission,
   getManagedActivity, updateActivity, cancelActivity, archiveActivity, listArchivedActivities
 };
