@@ -19,7 +19,7 @@ async function getWeeklyReport(currentUser, requestedStart) {
 
   const memberships = await Membership.find({
     family: currentUser.familyId,
-    role: { $in: ['player', 'admin_player'] },
+    role: { $in: ['player', 'admin_player', 'player_validator'] },
     isActive: true
   }).populate({ path: 'user', match: { isActive: true }, select: 'name selectedAvatar totalXp coinBalance' }).lean();
   const players = memberships.map((item) => item.user).filter(Boolean);

@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const controller = require('./user-admin.controller');
+const { requireAuthentication } = require('../../middleware/authentication');
+const { requirePermission } = require('../../middleware/authorization');
+router.use(requireAuthentication, requirePermission('manageUsers'));
+router.get('/', controller.show);
+router.post('/', controller.create);
+router.post('/:userId', controller.update);
+router.post('/:userId/password', controller.resetPassword);
+module.exports = router;

@@ -11,6 +11,7 @@ async function changePassword(request, response, next) {
   try {
     const version = await accountService.changeOwnPassword(request.session.user, request.body.currentPassword, request.body.newPassword, request.body.confirmPassword);
     request.session.user.sessionVersion = version;
+    request.session.user.mustChangePassword = false;
     request.session.flash = { type: 'success', message: 'Contraseña actualizada. Las demás sesiones se cerraron.' };
     return response.redirect('/account/settings');
   } catch (error) { return handle(request, response, next, error); }

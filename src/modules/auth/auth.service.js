@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../users/user.model');
 const Membership = require('../families/membership.model');
 const Family = require('../families/family.model');
+const { effectivePermissions } = require('../families/permissions');
 
 async function authenticate(username, password) {
   const normalizedUsername = String(username || '').trim().toLowerCase();
@@ -21,9 +22,11 @@ async function authenticate(username, password) {
     avatar: user.selectedAvatar,
     preferences: user.preferences || { color: 'violet', mode: 'light', decoration: 'stars' },
     role: membership.role,
+    permissions: effectivePermissions(membership.role, membership.permissions),
     familyId: membership.family.id,
     familyName: membership.family.name
-    ,sessionVersion: user.sessionVersion || 0
+    ,sessionVersion: user.sessionVersion || 0,
+    mustChangePassword: Boolean(user.mustChangePassword)
   };
 }
 

@@ -7,6 +7,6 @@ router.use(requireAuthentication);
 router.get('/settings', controller.showSettings);
 router.post('/password', controller.changePassword);
 router.post('/family/:userId/password', allowRoles('admin_player'), controller.resetPassword);
-router.post('/avatar', allowRoles('admin_player', 'player'), controller.selectAvatar);
-router.post('/preferences', allowRoles('admin_player', 'player'), controller.updatePreferences);
+router.post('/avatar', allowRoles('admin_player', 'player', 'player_validator'), controller.selectAvatar);
+router.post('/preferences', allowRoles('admin_player', 'player', 'player_validator'), controller.updatePreferences);
 module.exports = router;

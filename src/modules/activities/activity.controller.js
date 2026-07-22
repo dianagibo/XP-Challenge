@@ -172,7 +172,7 @@ async function acceptSharedMission(request, response, next) {
 async function returnSharedMission(request, response, next) {
   try {
     await activityService.respondToSharedMission(request.params.activityId, 'return', request.body.acceptanceNote, request.session.user);
-    request.session.flash = { type: 'success', message: 'El reto fue devuelto a Sofi con tu mensaje.' };
+    request.session.flash = { type: 'success', message: 'El reto fue devuelto a quien lo creó junto con tu mensaje.' };
     return response.redirect('/');
   } catch (error) { if (error.status === 400) { request.session.flash = { type: 'error', message: error.message }; return response.redirect('/'); } return next(error); }
 }
@@ -228,9 +228,9 @@ async function renderCreate(response, currentUser, values = {}, error = null, st
   return response.status(status).render('pages/create-mission', {
     pageTitle: 'Crear misión', activePage: 'missions', values, error,
     rewards: activityService.REWARDS, categories: CATEGORIES,
-    players: members.filter((item) => currentUser.role === 'player' ? item.role === 'admin_player' : item.role === 'player'),
-    validators: currentUser.role === 'player' ? members.filter((item) => String(item.user._id) === String(currentUser.id)) : members.filter((item) => ['admin_player', 'validator'].includes(item.role)),
-    isSharedChallenge: currentUser.role === 'player',
+    players: members.filter((item) => item.permissions.participate && String(item.user._id) !== String(currentUser.id)),
+    validators: currentUser.permissions?.manageUsers ? members.filter((item) => item.permissions.validateResponsibilities || item.permissions.reviewOwnMissions) : members.filter((item) => String(item.user._id) === String(currentUser.id)),
+    isSharedChallenge: !currentUser.permissions?.manageUsers,
     minimumDate: new Date().toISOString().slice(0, 10)
   });
 }

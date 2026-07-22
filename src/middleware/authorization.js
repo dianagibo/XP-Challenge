@@ -7,4 +7,13 @@ function allowRoles(...roles) {
   };
 }
 
-module.exports = { allowRoles };
+function requirePermission(permission) {
+  return (request, response, next) => {
+    if (!request.session.user?.permissions?.[permission]) {
+      return response.status(403).render('pages/forbidden', { pageTitle: 'Acceso denegado' });
+    }
+    return next();
+  };
+}
+
+module.exports = { allowRoles, requirePermission };

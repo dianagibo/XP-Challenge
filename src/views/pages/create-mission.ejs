@@ -3,7 +3,7 @@
   <%- include('../partials/sidebar') %>
   <main class="game-main mission-workspace">
     <header class="workspace-header">
-      <div><span class="eyebrow"><%= isSharedChallenge ? 'RETO PARA DIANA' : 'NUEVA AVENTURA' %></span><h1><%= isSharedChallenge ? 'Retar a Diana' : 'Crear una misión' %></h1><p><%= isSharedChallenge ? 'Ahora tú también puedes proponerle una misión y premiar su esfuerzo.' : 'Convierte una responsabilidad en un reto claro y motivador.' %></p></div>
+      <div><span class="eyebrow"><%= isSharedChallenge ? 'RETO FAMILIAR' : 'NUEVA AVENTURA' %></span><h1><%= isSharedChallenge ? 'Retar a un familiar' : 'Crear una misión' %></h1><p><%= isSharedChallenge ? 'Elige a quién quieres retar y premia su esfuerzo.' : 'Convierte una responsabilidad en un reto claro y motivador.' %></p></div>
       <a class="secondary-action" href="/missions/manage"><i class="bi bi-arrow-left"></i> Volver a misiones</a>
     </header>
 
@@ -15,7 +15,7 @@
         <div class="form-card-heading"><span>1</span><div><h2>Detalles de la misión</h2><p>Haz que el objetivo sea fácil de entender.</p></div></div>
         <div class="form-grid">
           <label class="field field-wide">Título<input name="title" required maxlength="100" value="<%= values.title || '' %>" placeholder="Completar la tarea de matemáticas"></label>
-          <label class="field field-wide">Descripción<textarea name="description" required maxlength="500" rows="3" placeholder="¿Qué debe lograr <%= isSharedChallenge ? 'Diana' : 'Sofi' %>?"><%= values.description || '' %></textarea></label>
+          <label class="field field-wide">Descripción<textarea name="description" required maxlength="500" rows="3" placeholder="¿Qué debe lograr la persona asignada?"><%= values.description || '' %></textarea></label>
           <label class="field">Categoría<select name="category" required><option value="">Elige una categoría</option><% categories.forEach((category) => { %><option value="<%= category.value %>" <%= values.category === category.value ? 'selected' : '' %>><%= category.label %></option><% }) %></select></label>
           <% if (isSharedChallenge) { %><input type="hidden" name="frequency" value="once"><% } else { %><label class="field">Frecuencia<select id="missionFrequency" name="frequency"><option value="once" <%= (values.frequency || 'once') === 'once' ? 'selected' : '' %>>Una vez</option><option value="daily" <%= values.frequency === 'daily' ? 'selected' : '' %>>Todos los días</option><option value="weekly" <%= values.frequency === 'weekly' ? 'selected' : '' %>>Días seleccionados</option></select></label><% } %>
           <label class="field">Fecha de inicio<input type="date" name="startDate" min="<%= minimumDate %>" required value="<%= values.startDate || values.dueDate || minimumDate %>"></label>
@@ -46,9 +46,9 @@
       </section>
 
       <section class="form-card">
-        <div class="form-card-heading"><span>3</span><div><h2>Personas</h2><p>Elige la jugadora y quién puede validar el resultado.</p></div></div>
+        <div class="form-card-heading"><span>3</span><div><h2>Personas</h2><p>Elige al participante y quién puede validar el resultado.</p></div></div>
         <div class="form-grid">
-          <label class="field field-wide">Asignar a<select name="assignedTo" required><option value="">Elige una jugadora</option><% players.forEach((item) => { %><option value="<%= item.user._id %>" <%= String(values.assignedTo || '') === String(item.user._id) ? 'selected' : '' %>><%= item.user.name %> (@<%= item.user.username %>)</option><% }) %></select></label>
+          <label class="field field-wide">Asignar a<select name="assignedTo" required><option value="">Elige un participante</option><% players.forEach((item) => { %><option value="<%= item.user._id %>" <%= String(values.assignedTo || '') === String(item.user._id) ? 'selected' : '' %>><%= item.user.name %> (@<%= item.user.username %>)</option><% }) %></select></label>
           <fieldset class="field field-wide validator-field"><legend>¿Quién puede validar?</legend><div class="validator-options"><% validators.forEach((item) => { const checked = isSharedChallenge || [values.validators].flat().map(String).includes(String(item.user._id)); %><label><input type="checkbox" name="validators" value="<%= item.user._id %>" <%= checked ? 'checked' : '' %> <%= isSharedChallenge ? 'disabled' : '' %>><span><i class="bi bi-shield-check"></i><%= item.user.name %><%= isSharedChallenge ? ' (tú revisarás el reto)' : '' %></span></label><% }) %></div></fieldset>
         </div>
       </section>

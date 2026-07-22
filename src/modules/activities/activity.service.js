@@ -4,6 +4,7 @@ const Membership = require('../families/membership.model');
 const rewardService = require('../rewards/reward.service');
 const weeklyGoalService = require('../goals/weekly-goal.service');
 const notificationService = require('../notifications/notification.service');
+const { effectivePermissions } = require('../families/permissions');
 
 const REWARDS = Object.freeze({
   easy: { xp: 10, coins: 2 },
@@ -17,22 +18,22 @@ async function getFamilyMembers(familyId) {
     .populate({ path: 'user', match: { isActive: true }, select: 'name username selectedAvatar' })
     .lean();
 
-  return memberships.filter((membership) => membership.user);
+  return memberships.filter((membership) => membership.user).map((membership) => ({ ...membership, permissions: effectivePermissions(membership.role, membership.permissions) }));
 }
 
 async function createActivity(input, currentUser) {
   const members = await getFamilyMembers(currentUser.familyId);
-  const isSharedChallenge = currentUser.role === 'player';
-  const assignableIds = new Set(members.filter((item) => isSharedChallenge ? item.role === 'admin_player' : item.role === 'player').map((item) => String(item.user._id)));
-  const validatorIds = new Set(members.filter((item) => ['admin_player', 'validator'].includes(item.role)).map((item) => String(item.user._id)));
+  const isSharedChallenge = !currentUser.permissions?.manageUsers;
+  const assignableIds = new Set(members.filter((item) => item.permissions.participate && String(item.user._id) !== String(currentUser.id)).map((item) => String(item.user._id)));
+  const validatorIds = new Set(members.filter((item) => item.permissions.validateResponsibilities || item.permissions.reviewOwnMissions).map((item) => String(item.user._id)));
   const selectedValidators = isSharedChallenge ? [currentUser.id] : [...new Set([input.validators].flat().filter(Boolean))];
 
-  if (!assignableIds.has(String(input.assignedTo))) throw validationError('Selecciona una jugadora válida.');
+  if (!assignableIds.has(String(input.assignedTo))) throw validationError('Selecciona un participante válido distinto de ti.');
   if (!isSharedChallenge && (!selectedValidators.length || selectedValidators.some((id) => !validatorIds.has(String(id))))) {
     throw validationError('Selecciona al menos una persona válida para revisar.');
   }
   if (!REWARDS[input.difficulty]) throw validationError('Selecciona una dificultad válida.');
-  if (isSharedChallenge && input.difficulty === 'epic') throw validationError('Selecciona una dificultad disponible para los retos de Sofi.');
+  if (isSharedChallenge && input.difficulty === 'epic') throw validationError('Selecciona una dificultad disponible para retos familiares.');
 
   // Shared challenges always use the fixed reward for the selected difficulty.
   // This prevents a player from changing the submitted XP or coin values.
@@ -80,7 +81,7 @@ async function createActivity(input, currentUser) {
   });
   await notificationService.createForRecipients({
     family: currentUser.familyId, recipients: [input.assignedTo], type: 'mission_assigned',
-      title: isSharedChallenge ? '¡Sofi te envió un reto!' : '¡Tienes una nueva misión!', message: isSharedChallenge ? `Sofi quiere retarte con “${activity.title}”.` : `Te asignaron “${activity.title}”.`,
+      title: isSharedChallenge ? '¡Te enviaron un reto!' : '¡Tienes una nueva misión!', message: isSharedChallenge ? `${currentUser.name} quiere retarte con “${activity.title}”.` : `Te asignaron “${activity.title}”.`,
     url: `/missions/${activity._id}`, eventKey: `mission:${activity._id}:assigned`
   });
   return activity;
@@ -89,9 +90,9 @@ async function createActivity(input, currentUser) {
 async function listManagedActivities(familyId, currentUser = null) {
   await materializeActiveSeries(familyId);
   const activityFilter = { family: familyId, archivedAt: null };
-  if (currentUser?.role === 'player') activityFilter.createdBy = currentUser.id;
+  if (!currentUser?.permissions?.manageUsers) activityFilter.createdBy = currentUser.id;
   const seriesFilter = { family: familyId };
-  if (currentUser?.role === 'player') seriesFilter.createdBy = currentUser.id;
+  if (!currentUser?.permissions?.manageUsers) seriesFilter.createdBy = currentUser.id;
   const [activities, recurringMissions] = await Promise.all([Activity.find(activityFilter)
     .populate('assignedTo', 'name username selectedAvatar')
     .populate('validators', 'name')

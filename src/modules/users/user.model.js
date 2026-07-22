@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   totalXp: { type: Number, default: 0, min: 0 },
   coinBalance: { type: Number, default: 0, min: 0 },
   lastLoginAt: { type: Date, default: null }
+  ,mustChangePassword: { type: Boolean, default: false }
   ,sessionVersion: { type: Number, default: 0, min: 0 }
 }, { timestamps: true });
 

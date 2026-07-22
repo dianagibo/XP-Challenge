@@ -5,6 +5,6 @@ const { allowRoles } = require('../../middleware/authorization');
 
 const router = express.Router();
 router.use(requireAuthentication);
-router.get('/', allowRoles('admin_player', 'player'), controller.showGoals);
+router.get('/', allowRoles('admin_player', 'player', 'player_validator'), controller.showGoals);
 router.post('/', allowRoles('admin_player'), controller.createGoal);
 module.exports = router;
