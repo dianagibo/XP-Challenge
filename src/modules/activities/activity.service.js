@@ -3,6 +3,7 @@ const RecurringMission = require('./recurring-mission.model');
 const Membership = require('../families/membership.model');
 const rewardService = require('../rewards/reward.service');
 const weeklyGoalService = require('../goals/weekly-goal.service');
+const notificationService = require('../notifications/notification.service');
 
 const REWARDS = Object.freeze({
   easy: { xp: 10, coins: 2 },
@@ -54,15 +55,26 @@ async function createActivity(input, currentUser) {
       startDate, endDate: input.endDate || null
     });
     await materializeSeries(series);
+    await notificationService.createForRecipients({
+      family: currentUser.familyId, recipients: [input.assignedTo], type: 'mission_assigned',
+      title: 'Nueva serie de misiones', message: `Te asignaron la serie “${series.title}”.`,
+      url: '/#missions', eventKey: `recurring-series:${series._id}:assigned`
+    });
     return series;
   }
 
   const dueDate = endOfDay(startDate);
 
-  return Activity.create({
+  const activity = await Activity.create({
     ...common,
     dueDate,
   });
+  await notificationService.createForRecipients({
+    family: currentUser.familyId, recipients: [input.assignedTo], type: 'mission_assigned',
+    title: '¡Tienes una nueva misión!', message: `Te asignaron “${activity.title}”.`,
+    url: `/missions/${activity._id}`, eventKey: `mission:${activity._id}:assigned`
+  });
+  return activity;
 }
 
 async function listManagedActivities(familyId) {
@@ -281,7 +293,14 @@ async function submitForApproval(activityId, completionNote, currentUser) {
     }
   }, { new: true });
 
-  if (activity) return activity;
+  if (activity) {
+    await notificationService.createForRecipients({
+      family: activity.family, recipients: activity.validators, type: 'mission_submitted',
+      title: 'Misión lista para revisar', message: `Sofi envió “${activity.title}” para aprobación.`,
+      url: `/missions/review/${activity._id}`, eventKey: `mission:${activity._id}:submitted:${activity.submittedAt.getTime()}`
+    });
+    return activity;
+  }
 
   const existing = await Activity.findOne({
     _id: activityId,
@@ -395,6 +414,16 @@ async function reviewActivity(activityId, decision, reviewNote, currentUser) {
       }
 
       reviewedActivity = await activity.save({ session });
+      await notificationService.createForRecipients({
+        family: activity.family, recipients: [activity.assignedTo],
+        type: decision === 'approved' ? 'mission_approved' : 'mission_changes_requested',
+        title: decision === 'approved' ? '¡Misión aprobada!' : 'Tu misión necesita ajustes',
+        message: decision === 'approved'
+          ? `Aprobaron “${activity.title}” y recibiste ${activity.xpReward} XP y ${activity.coinReward} monedas.`
+          : `Revisa los comentarios de “${activity.title}” y vuelve a intentarlo.`,
+        url: `/missions/${activity._id}`,
+        eventKey: `mission:${activity._id}:review:${activity.reviewedAt.getTime()}`
+      }, session);
     });
     return reviewedActivity;
   } finally {

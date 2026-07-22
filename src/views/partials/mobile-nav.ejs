@@ -8,6 +8,7 @@
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
   <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas</span></a><% } %>
   <a class="<%= ['profile','settings'].includes(activePage) ? 'active' : '' %>" href="/account/settings"><i class="bi bi-person-fill"></i><span>Cuenta</span></a>
+  <a class="mobile-notification-link <%= activePage === 'notifications' ? 'active' : '' %>" href="/notifications"><i class="bi bi-bell-fill"></i><span>Avisos</span><% if (unreadNotificationCount > 0) { %><strong class="notification-badge"><%= unreadNotificationCount > 99 ? '99+' : unreadNotificationCount %></strong><% } %></a>
   <form method="post" action="/auth/logout">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <button type="submit" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-left"></i><span>Salir</span></button>

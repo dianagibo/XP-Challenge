@@ -3,6 +3,7 @@ const Membership = require('../families/membership.model');
 const User = require('../users/user.model');
 const WeeklyGoal = require('./weekly-goal.model');
 const WeeklyGoalBonus = require('./weekly-goal-bonus.model');
+const notificationService = require('../notifications/notification.service');
 
 const CATEGORIES = ['all', 'home', 'school', 'wellbeing', 'personal_growth', 'family'];
 
@@ -21,7 +22,13 @@ async function createGoal(input, currentUser) {
   if (daysBetween(input.startDate, input.endDate) > 6) throw validationError('Una meta semanal puede durar máximo 7 días.');
   const membership = await Membership.exists({ family: currentUser.familyId, user: input.player, role: 'player', isActive: true });
   if (!membership) throw validationError('Selecciona una jugadora válida.');
-  return WeeklyGoal.create({ family: currentUser.familyId, player: input.player, title, category: input.category, targetCount, xpBonus, coinBonus, startDate: input.startDate, endDate: input.endDate, createdBy: currentUser.id });
+  const goal = await WeeklyGoal.create({ family: currentUser.familyId, player: input.player, title, category: input.category, targetCount, xpBonus, coinBonus, startDate: input.startDate, endDate: input.endDate, createdBy: currentUser.id });
+  await notificationService.createForRecipients({
+    family: currentUser.familyId, recipients: [input.player], type: 'goal_created',
+    title: 'Nueva meta semanal', message: `Tienes una nueva meta: “${goal.title}”.`,
+    url: '/weekly-goals', eventKey: `goal:${goal._id}:created`
+  });
+  return goal;
 }
 
 async function listGoals(currentUser) {
@@ -52,6 +59,12 @@ async function applyApprovedMission(activity, session) {
     const [bonus] = await WeeklyGoalBonus.create([{ family: goal.family, player: goal.player, weeklyGoal: goal._id, xpAmount: goal.xpBonus, coinAmount: goal.coinBonus, xpBalanceAfter: player.totalXp, coinBalanceAfter: player.coinBalance }], { session });
     goal.status = 'completed'; goal.completedAt = activity.reviewedAt || new Date(); goal.bonusTransaction = bonus._id;
     await goal.save({ session });
+    const guardians = await notificationService.findRecipientsByRoles(goal.family, ['admin_player', 'validator']);
+    await notificationService.createForRecipients({
+      family: goal.family, recipients: guardians, type: 'goal_completed',
+      title: '¡Meta semanal cumplida!', message: `Sofi completó la meta “${goal.title}”.`,
+      url: '/weekly-goals', eventKey: `goal:${goal._id}:completed`
+    }, session);
   }
 }
 

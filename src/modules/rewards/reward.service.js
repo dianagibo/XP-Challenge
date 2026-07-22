@@ -2,6 +2,7 @@ const User = require('../users/user.model');
 const RewardTransaction = require('./reward-transaction.model');
 const RewardItem = require('./reward-item.model');
 const Redemption = require('./redemption.model');
+const notificationService = require('../notifications/notification.service');
 
 function getProgress(totalXp = 0) {
   const safeXp = Math.max(0, Number(totalXp) || 0);
@@ -106,6 +107,13 @@ async function redeemReward(rewardId, currentUser) {
         coinCost: reward.coinCost, coinBalanceAfter: player.coinBalance
       }], { session });
     });
+    const guardians = await notificationService.findRecipientsByRoles(currentUser.familyId, ['admin_player', 'validator']);
+    const reward = await RewardItem.findById(rewardId).select('name').lean();
+    await notificationService.createForRecipients({
+      family: currentUser.familyId, recipients: guardians, type: 'reward_redeemed',
+      title: 'Recompensa por entregar', message: `Sofi canjeó “${reward?.name || 'una recompensa'}”.`,
+      url: '/reward-catalog', eventKey: `redemption:${redemption._id}:created`
+    });
     return redemption;
   } catch (error) {
     if (error?.code === 11000) throw conflictError('Esta recompensa ya está pendiente de entrega.');
@@ -130,6 +138,12 @@ async function deliverRedemption(redemptionId, currentUser) {
     _id: redemptionId, family: currentUser.familyId, status: 'pending_delivery'
   }, { $set: { status: 'delivered', deliveredBy: currentUser.id, deliveredAt: new Date() } }, { new: true });
   if (!redemption) throw notFoundError('Este canje no está disponible o ya fue entregado.');
+  const reward = await RewardItem.findById(redemption.reward).select('name').lean();
+  await notificationService.createForRecipients({
+    family: currentUser.familyId, recipients: [redemption.player], type: 'reward_delivered',
+    title: '¡Recompensa entregada!', message: `“${reward?.name || 'Tu recompensa'}” fue marcada como entregada.`,
+    url: '/reward-catalog', eventKey: `redemption:${redemption._id}:delivered`
+  });
   return redemption;
 }
 
