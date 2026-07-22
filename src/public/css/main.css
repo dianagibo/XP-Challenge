@@ -45,6 +45,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .coin-pill i { color: var(--gold); }
 .icon-button { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 14px; background: #fff; color: var(--ink); }
 .icon-button span { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border: 2px solid #fff; border-radius: 50%; background: var(--pink); }
+.notification-bell { text-decoration: none; }
+.notification-bell .notification-badge { position: absolute; top: -7px; right: -7px; min-width: 1.25rem; height: 1.25rem; padding: 0 .3rem; border: 2px solid #fff; font-size: .65rem; }
 .avatar-link { transition: transform .2s ease; }
 .avatar-link:hover { transform: translateY(-2px); }
 .hero-card { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.25fr .75fr; min-height: 290px; padding: 38px 48px; border-radius: 30px; color: #fff; background: radial-gradient(circle at 80% 20%, rgba(255,255,255,.22), transparent 23%), linear-gradient(125deg, #5334d5, #8060ff 62%, #a06cff); box-shadow: 0 20px 50px rgba(87,52,213,.25); }
