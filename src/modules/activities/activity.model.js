@@ -19,7 +19,7 @@ const activitySchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: {
     type: String,
-    enum: ['assigned', 'pending_validation', 'approved', 'changes_requested'],
+    enum: ['assigned', 'pending_validation', 'approved', 'changes_requested', 'canceled'],
     default: 'assigned',
     index: true
   },
@@ -32,6 +32,10 @@ const activitySchema = new mongoose.Schema({
   rewardTransaction: { type: mongoose.Schema.Types.ObjectId, ref: 'RewardTransaction', default: null },
   recurringMission: { type: mongoose.Schema.Types.ObjectId, ref: 'RecurringMission', default: null, index: true },
   occurrenceDate: { type: String, default: null }
+  ,canceledAt: { type: Date, default: null }
+  ,canceledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+  ,archivedAt: { type: Date, default: null, index: true }
+  ,archivedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 }, { timestamps: true });
 
 activitySchema.index({ family: 1, createdAt: -1 });
