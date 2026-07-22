@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<%- include('../partials/head', { pageTitle }) %>
+<body>
+  <div class="app-shell">
+    <%- include('../partials/sidebar', { activePage }) %>
+    <main class="game-main weekly-report-page">
+      <div class="weekly-report-scroll">
+      <div class="weekly-report-content">
+      <header class="report-header">
+        <div>
+          <p class="eyebrow">Nuestra aventura en familia</p>
+          <h1>Reporte semanal</h1>
+          <p><%= formatDate(`${report.weekStart}T12:00:00Z`) %> – <%= formatDate(`${report.weekEnd}T12:00:00Z`) %></p>
+        </div>
+      </header>
+
+      <nav class="week-selector" aria-label="Cambiar semana">
+        <a class="btn btn-light" href="/weekly-report?week=<%= report.previousWeek %>"><i class="bi bi-chevron-left"></i> Semana anterior</a>
+        <strong><%= report.isCurrentWeek ? 'Semana actual' : 'Semana seleccionada' %></strong>
+        <% if (report.nextWeek) { %><a class="btn btn-light" href="/weekly-report?week=<%= report.nextWeek %>">Semana siguiente <i class="bi bi-chevron-right"></i></a><% } else { %><span></span><% } %>
+      </nav>
+
+      <% if (!report.hasActivity) { %>
+        <section class="report-empty">
+          <i class="bi bi-journal-star"></i>
+          <h2>Esta semana todavía está por escribirse</h2>
+          <p>No hay actividad registrada en estas fechas. Cada pequeña acción puede ser el comienzo de algo bonito.</p>
+        </section>
+      <% } else { %>
+        <section class="family-summary-grid" aria-label="Resumen familiar">
+          <article><i class="bi bi-check2-circle"></i><strong><%= report.family.totalCompleted %></strong><span>Misiones completadas</span></article>
+          <article><i class="bi bi-percent"></i><strong><%= report.family.completionRate %>%</strong><span>Cumplimiento familiar</span></article>
+          <article><i class="bi bi-bullseye"></i><strong><%= report.family.goalsCompleted %></strong><span>Metas cumplidas</span></article>
+          <article><i class="bi bi-award-fill"></i><strong><%= report.family.recognitionCount %></strong><span>Reconocimientos</span></article>
+        </section>
+
+        <section class="report-section">
+          <div class="section-heading"><div><p class="eyebrow">Avance individual</p><h2>El progreso de cada una</h2></div></div>
+          <div class="player-report-grid">
+            <% report.summaries.forEach((summary) => { %>
+              <article class="player-report-card">
+                <header>
+                  <%- include('../partials/avatar', { avatar: summary.player.selectedAvatar, name: summary.player.name, size: 'md' }) %>
+                  <div><h3><%= summary.player.name %></h3><p>Nivel <%= summary.level %> · <%= summary.player.totalXp || 0 %> XP total</p></div>
+                </header>
+                <div class="player-metrics">
+                  <div><strong><%= summary.missions.approved %>/<%= summary.missions.assigned %></strong><span>Misiones aprobadas</span></div>
+                  <div><strong><%= summary.missions.pending %></strong><span>Pendientes</span></div>
+                  <div><strong>+<%= summary.xpEarned %></strong><span>XP de la semana</span></div>
+                  <div><strong>+<%= summary.coinsEarned %></strong><span>Monedas ganadas</span></div>
+                </div>
+                <ul class="report-detail-list">
+                  <li><i class="bi bi-arrow-repeat"></i> <%= summary.missions.changesRequested %> misiones necesitaron ajustes</li>
+                  <li><i class="bi bi-award"></i> <%= summary.bonusCount %> bonos o reconocimientos</li>
+                  <li><i class="bi bi-gift"></i> <%= summary.redemptions.length %> recompensas canjeadas</li>
+                  <li><i class="bi bi-bullseye"></i> <%= summary.goals.completed %> de <%= summary.goals.total %> metas cumplidas</li>
+                </ul>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+
+        <section class="report-section report-two-columns">
+          <article class="report-panel">
+            <p class="eyebrow">Lo que más practicamos</p><h2>Categorías destacadas</h2>
+            <% if (report.family.topCategories.length) { %>
+              <ol class="category-ranking"><% report.family.topCategories.forEach((item, index) => { %><li><span><%= index + 1 %></span><strong><%= labelFor('category', item.category) %></strong><small><%= item.count %> <%= item.count === 1 ? 'misión' : 'misiones' %></small></li><% }) %></ol>
+            <% } else { %><p class="muted">No hubo misiones con vencimiento esta semana.</p><% } %>
+          </article>
+          <article class="report-panel">
+            <p class="eyebrow">Metas familiares</p><h2>Objetivos de la semana</h2>
+            <div class="goal-report-numbers"><div><strong><%= report.family.goalsCompleted %></strong><span>Cumplidas</span></div><div><strong><%= report.family.goalsPending %></strong><span>Pendientes</span></div></div>
+          </article>
+        </section>
+
+        <% if (report.highlights.length) { %>
+          <section class="report-section"><p class="eyebrow">Momentos para celebrar</p><h2>Reconocimientos destacados</h2><div class="recognition-highlights">
+            <% report.highlights.forEach((bonus) => { %><article><i class="bi bi-stars"></i><div><strong><%= bonus.title %></strong><p>“<%= bonus.message %>”</p><small>Para <%= bonus.recipient.name %>, de <%= bonus.grantedBy.name %></small></div></article><% }) %>
+          </div></section>
+        <% } %>
+
+        <section class="report-celebration"><i class="bi bi-heart-fill"></i><h2><%= report.encouragement %></h2><p>Este reporte celebra el esfuerzo; no busca comparar quién hizo más.</p></section>
+      <% } %>
+      </div>
+      </div>
+    </main>
+  </div>
+  <%- include('../partials/mobile-nav', { activePage }) %>
+  <%- include('../partials/footer') %>
+</body>
+</html>
