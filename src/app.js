@@ -46,6 +46,19 @@ app.use(session({
   }
 }));
 app.use(exposeCurrentUser);
+app.use((request, response, next) => {
+  const labels = {
+    category: { all: 'Todas las misiones', home: 'Hogar', school: 'Colegio', wellbeing: 'Bienestar', personal_growth: 'Crecimiento personal', family: 'Familia' },
+    difficulty: { easy: 'Fácil', medium: 'Media', hard: 'Difícil', epic: 'Épica' },
+    status: { assigned: 'Asignada', pending_validation: 'Esperando aprobación', changes_requested: 'Necesita ajustes', approved: 'Aprobada', active: 'Activa', paused: 'Pausada', completed: 'Cumplida', expired: 'Finalizada', pending_delivery: 'Pendiente de entrega', delivered: 'Entregada' },
+    frequency: { once: 'Una vez', daily: 'Todos los días', weekly: 'Días seleccionados' }
+  };
+  response.locals.labelFor = (group, value) => labels[group]?.[value] || String(value || '').replaceAll('_', ' ');
+  response.locals.formatDate = (value, includeTime = false) => new Intl.DateTimeFormat('es-CO', {
+    dateStyle: 'medium', ...(includeTime ? { timeStyle: 'short' } : {}), timeZone: 'America/Bogota'
+  }).format(new Date(value));
+  next();
+});
 app.use(csrfProtection);
 
 app.use('/auth', authRoutes);

@@ -9,7 +9,7 @@ const loginLimiter = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many login attempts. Please try again in 15 minutes.'
+  message: 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en 15 minutos.'
 });
 
 router.get('/login', redirectIfAuthenticated, authController.showLogin);

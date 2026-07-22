@@ -11,16 +11,16 @@ async function createGoal(input, currentUser) {
   const targetCount = Number(input.targetCount);
   const xpBonus = Number(input.xpBonus || 0);
   const coinBonus = Number(input.coinBonus || 0);
-  if (!title || title.length > 100) throw validationError('Enter a goal name of 100 characters or fewer.');
-  if (!CATEGORIES.includes(input.category)) throw validationError('Select a valid category.');
-  if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 50) throw validationError('The mission target must be between 1 and 50.');
-  if (!Number.isInteger(xpBonus) || xpBonus < 0 || xpBonus > 1000) throw validationError('XP bonus must be between 0 and 1000.');
-  if (!Number.isInteger(coinBonus) || coinBonus < 0 || coinBonus > 500) throw validationError('Coin bonus must be between 0 and 500.');
-  if (!xpBonus && !coinBonus) throw validationError('Add an XP or coin bonus.');
-  if (!validDate(input.startDate) || !validDate(input.endDate) || input.endDate < input.startDate) throw validationError('Select a valid date range.');
-  if (daysBetween(input.startDate, input.endDate) > 6) throw validationError('A weekly goal can cover a maximum of 7 days.');
+  if (!title || title.length > 100) throw validationError('Escribe un nombre de máximo 100 caracteres.');
+  if (!CATEGORIES.includes(input.category)) throw validationError('Selecciona una categoría válida.');
+  if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 50) throw validationError('El objetivo debe estar entre 1 y 50 misiones.');
+  if (!Number.isInteger(xpBonus) || xpBonus < 0 || xpBonus > 1000) throw validationError('El bono de XP debe estar entre 0 y 1000.');
+  if (!Number.isInteger(coinBonus) || coinBonus < 0 || coinBonus > 500) throw validationError('El bono de monedas debe estar entre 0 y 500.');
+  if (!xpBonus && !coinBonus) throw validationError('Agrega un bono de XP o monedas.');
+  if (!validDate(input.startDate) || !validDate(input.endDate) || input.endDate < input.startDate) throw validationError('Selecciona un rango de fechas válido.');
+  if (daysBetween(input.startDate, input.endDate) > 6) throw validationError('Una meta semanal puede durar máximo 7 días.');
   const membership = await Membership.exists({ family: currentUser.familyId, user: input.player, role: 'player', isActive: true });
-  if (!membership) throw validationError('Select a valid player.');
+  if (!membership) throw validationError('Selecciona una jugadora válida.');
   return WeeklyGoal.create({ family: currentUser.familyId, player: input.player, title, category: input.category, targetCount, xpBonus, coinBonus, startDate: input.startDate, endDate: input.endDate, createdBy: currentUser.id });
 }
 
@@ -48,7 +48,7 @@ async function applyApprovedMission(activity, session) {
     const previousCount = await Activity.countDocuments(filter).session(session);
     if (previousCount + 1 < goal.targetCount) continue;
     const player = await User.findOneAndUpdate({ _id: goal.player, isActive: true }, { $inc: { totalXp: goal.xpBonus, coinBalance: goal.coinBonus } }, { new: true, session });
-    if (!player) throw new Error('The goal player is no longer active.');
+    if (!player) throw new Error('La jugadora de la meta ya no está activa.');
     const [bonus] = await WeeklyGoalBonus.create([{ family: goal.family, player: goal.player, weeklyGoal: goal._id, xpAmount: goal.xpBonus, coinAmount: goal.coinBonus, xpBalanceAfter: player.totalXp, coinBalanceAfter: player.coinBalance }], { session });
     goal.status = 'completed'; goal.completedAt = activity.reviewedAt || new Date(); goal.bonusTransaction = bonus._id;
     await goal.save({ session });

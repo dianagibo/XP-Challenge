@@ -1,15 +1,15 @@
-<nav class="mobile-nav d-lg-none" aria-label="Mobile navigation">
-  <a class="<%= activePage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-grid-fill"></i><span>Home</span></a>
-  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.role === 'admin_player' ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Missions</span></a>
+<nav class="mobile-nav d-lg-none" aria-label="Navegación móvil">
+  <a class="<%= activePage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-grid-fill"></i><span>Inicio</span></a>
+  <a class="<%= activePage === 'missions' ? 'active' : '' %>" href="<%= currentUser?.role === 'admin_player' ? '/missions/manage' : '/#missions' %>"><i class="bi bi-flag-fill"></i><span>Misiones</span></a>
   <% if (['admin_player', 'validator'].includes(currentUser?.role)) { %>
-    <a class="<%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Reviews</span></a>
+    <a class="<%= activePage === 'reviews' ? 'active' : '' %>" href="/missions/review"><i class="bi bi-shield-check"></i><span>Revisiones</span></a>
   <% } %>
-  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Rewards</span></a><% } %>
-  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progress</span></a><% } %>
-  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Goals</span></a><% } %>
-  <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/avatars"><i class="bi bi-person-fill"></i><span>Profile</span></a>
+  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= ['catalog', 'rewards'].includes(activePage) ? 'active' : '' %>" href="/reward-catalog"><i class="bi bi-gift-fill"></i><span>Premios</span></a><% } %>
+  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
+  <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="<%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas</span></a><% } %>
+  <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/avatars"><i class="bi bi-person-fill"></i><span>Perfil</span></a>
   <form method="post" action="/auth/logout">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <button type="submit" aria-label="Log out"><i class="bi bi-box-arrow-left"></i><span>Log out</span></button>
+    <button type="submit" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-left"></i><span>Salir</span></button>
   </form>
 </nav>

@@ -2,20 +2,20 @@
 <div class="app-shell">
   <%- include('../partials/sidebar') %>
   <main class="game-main mission-workspace">
-    <header class="workspace-header"><div><span class="eyebrow">VALIDATION CENTER</span><h1>Review missions</h1><p>Celebrate completed work or help Sofi make a small adjustment.</p></div></header>
+    <header class="workspace-header"><div><span class="eyebrow">CENTRO DE VALIDACIÓN</span><h1>Revisar misiones</h1><p>Celebra el trabajo completado o ayuda a Sofi con un pequeño ajuste.</p></div></header>
     <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
     <% if (activities.length) { %>
       <section class="manage-list">
         <% activities.forEach(activity => { %>
           <article class="manage-card review-card">
             <div class="mission-icon icon-purple"><i class="bi bi-send-check-fill"></i></div>
-            <div class="manage-copy"><span class="mission-category"><%= activity.category.replace('_', ' ') %> · submitted by <%= activity.assignedTo.name %></span><h2><%= activity.title %></h2><p><%= activity.completionNote || 'No completion note was added.' %></p><div class="manage-meta"><span><i class="bi bi-clock"></i> <%= new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(activity.submittedAt) %></span><span><i class="bi bi-stars"></i> <%= activity.xpReward %> XP · <%= activity.coinReward %> coins</span></div></div>
-            <a class="primary-action" href="/missions/review/<%= activity._id %>"><i class="bi bi-eye"></i> Review</a>
+            <div class="manage-copy"><span class="mission-category"><%= labelFor('category', activity.category) %> · enviada por <%= activity.assignedTo.name %></span><h2><%= activity.title %></h2><p><%= activity.completionNote || 'No se agregó una nota de cumplimiento.' %></p><div class="manage-meta"><span><i class="bi bi-clock"></i> <%= formatDate(activity.submittedAt, true) %></span><span><i class="bi bi-stars"></i> <%= activity.xpReward %> XP · <%= activity.coinReward %> monedas</span></div></div>
+            <a class="primary-action" href="/missions/review/<%= activity._id %>"><i class="bi bi-eye"></i> Revisar</a>
           </article>
         <% }) %>
       </section>
     <% } else { %>
-      <section class="manage-empty"><span><i class="bi bi-check2-all"></i></span><div><h2>All caught up</h2><p>There are no missions waiting for your review.</p></div></section>
+      <section class="manage-empty"><span><i class="bi bi-check2-all"></i></span><div><h2>Todo está al día</h2><p>No hay misiones esperando tu revisión.</p></div></section>
     <% } %>
   </main>
 </div>

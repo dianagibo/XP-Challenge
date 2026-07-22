@@ -1,11 +1,11 @@
 const activityService = require('./activity.service');
 
 const CATEGORIES = [
-  { value: 'home', label: 'Home' },
-  { value: 'school', label: 'School' },
-  { value: 'wellbeing', label: 'Wellbeing' },
-  { value: 'personal_growth', label: 'Personal growth' },
-  { value: 'family', label: 'Family' }
+  { value: 'home', label: 'Hogar' },
+  { value: 'school', label: 'Colegio' },
+  { value: 'wellbeing', label: 'Bienestar' },
+  { value: 'personal_growth', label: 'Crecimiento personal' },
+  { value: 'family', label: 'Familia' }
 ];
 
 async function showCreate(request, response) {
@@ -15,7 +15,7 @@ async function showCreate(request, response) {
 async function create(request, response, next) {
   try {
     await activityService.createActivity(request.body, request.session.user);
-    request.session.flash = { type: 'success', message: 'Mission created and assigned!' };
+    request.session.flash = { type: 'success', message: '¡Misión creada y asignada!' };
     return response.redirect('/missions/manage');
   } catch (error) {
     if (error.status === 400 || error.name === 'ValidationError') {
@@ -31,7 +31,7 @@ async function showManage(request, response, next) {
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/manage-missions', {
-      pageTitle: 'Manage missions', activePage: 'missions', activities, recurringMissions, flash
+      pageTitle: 'Administrar misiones', activePage: 'missions', activities, recurringMissions, flash
     });
   } catch (error) {
     return next(error);
@@ -45,7 +45,7 @@ async function setRecurringActive(request, response, next) {
     );
     request.session.flash = {
       type: 'success',
-      message: request.body.action === 'resume' ? 'Recurring mission resumed.' : 'Recurring mission paused.'
+      message: request.body.action === 'resume' ? 'Serie reactivada.' : 'Serie pausada.'
     };
     return response.redirect('/missions/manage');
   } catch (error) { return next(error); }
@@ -73,7 +73,7 @@ async function submitForApproval(request, response, next) {
       request.body.completionNote,
       request.session.user
     );
-    request.session.flash = { type: 'success', message: 'Mission sent for approval!' };
+    request.session.flash = { type: 'success', message: '¡Misión enviada para aprobación!' };
     return response.redirect('/');
   } catch (error) {
     if (error.status === 400) {
@@ -100,7 +100,7 @@ async function showReviewQueue(request, response, next) {
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/review-missions', {
-      pageTitle: 'Review missions', activePage: 'reviews', activities, flash
+      pageTitle: 'Revisar misiones', activePage: 'reviews', activities, flash
     });
   } catch (error) { return next(error); }
 }
@@ -109,7 +109,7 @@ async function showReviewDetails(request, response, next) {
   try {
     const activity = await activityService.getReviewableActivity(request.params.activityId, request.session.user);
     return response.render('pages/review-mission-details', {
-      pageTitle: `Review ${activity.title}`, activePage: 'reviews', activity, error: null, values: {}
+      pageTitle: `Revisar ${activity.title}`, activePage: 'reviews', activity, error: null, values: {}
     });
   } catch (error) { return next(error); }
 }
@@ -122,8 +122,8 @@ async function review(request, response, next) {
     request.session.flash = {
       type: 'success',
       message: request.body.decision === 'approved'
-        ? 'Mission approved! XP and coins were delivered to Sofi.'
-        : 'Changes requested from Sofi.'
+        ? '¡Misión aprobada! Sofi recibió sus XP y monedas.'
+        : 'Se solicitaron ajustes a Sofi.'
     };
     return response.redirect('/missions/review');
   } catch (error) {
@@ -131,7 +131,7 @@ async function review(request, response, next) {
       try {
         const activity = await activityService.getReviewableActivity(request.params.activityId, request.session.user);
         return response.status(400).render('pages/review-mission-details', {
-          pageTitle: `Review ${activity.title}`, activePage: 'reviews', activity,
+          pageTitle: `Revisar ${activity.title}`, activePage: 'reviews', activity,
           error: error.message, values: request.body
         });
       } catch (lookupError) { return next(lookupError); }
@@ -143,7 +143,7 @@ async function review(request, response, next) {
 async function renderCreate(response, currentUser, values = {}, error = null, status = 200) {
   const members = await activityService.getFamilyMembers(currentUser.familyId);
   return response.status(status).render('pages/create-mission', {
-    pageTitle: 'Create mission', activePage: 'missions', values, error,
+    pageTitle: 'Crear misión', activePage: 'missions', values, error,
     rewards: activityService.REWARDS, categories: CATEGORIES,
     players: members.filter((item) => item.role === 'player'),
     validators: members.filter((item) => ['admin_player', 'validator'].includes(item.role)),

@@ -3,24 +3,24 @@
   <%- include('../partials/sidebar') %>
   <main class="game-main avatar-page">
     <header class="topbar">
-      <div><span class="eyebrow">YOUR CHARACTER</span><h1>Choose your avatar</h1><p>Pick the character that feels most like you.</p></div>
-      <a href="/" class="back-button"><i class="bi bi-arrow-left"></i> Back home</a>
+      <div><span class="eyebrow">TU PERSONAJE</span><h1>Elige tu avatar</h1><p>Elige el personaje que más se parezca a ti.</p></div>
+      <a href="/" class="back-button"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
     </header>
 
     <section class="avatar-stage">
-      <div class="stage-copy"><span class="level-chip"><i class="bi bi-stars"></i> Currently selected</span><h2>Nova</h2><p>A bright explorer who turns every challenge into a new adventure.</p></div>
+      <div class="stage-copy"><span class="level-chip"><i class="bi bi-stars"></i> Seleccionado actualmente</span><h2>Nova</h2><p>Una exploradora brillante que convierte cada reto en una nueva aventura.</p></div>
       <%- include('../partials/avatar', { avatar: game.avatars[0], size: 'hero' }) %>
     </section>
 
     <section class="avatar-section">
-      <div class="section-heading"><div><span class="eyebrow">AVATAR COLLECTION</span><h2>Find your style</h2></div><span class="daily-counter"><strong>3</strong>/6 unlocked</span></div>
+      <div class="section-heading"><div><span class="eyebrow">COLECCIÓN DE AVATARES</span><h2>Encuentra tu estilo</h2></div><span class="daily-counter"><strong>3</strong>/6 desbloqueados</span></div>
       <div class="avatar-grid">
         <% game.avatars.forEach((avatar) => { %>
           <button class="avatar-option <%= avatar.id === game.player.avatar ? 'selected' : '' %> <%= !avatar.unlocked ? 'locked' : '' %>" type="button" <%= !avatar.unlocked ? 'disabled' : '' %>>
-            <% if (!avatar.unlocked) { %><span class="lock-label"><i class="bi bi-lock-fill"></i> Level <%= avatar.level %></span><% } %>
+            <% if (!avatar.unlocked) { %><span class="lock-label"><i class="bi bi-lock-fill"></i> Nivel <%= avatar.level %></span><% } %>
             <%- include('../partials/avatar', { avatar, size: 'card' }) %>
             <strong><%= avatar.name %></strong>
-            <small><%= avatar.unlocked ? (avatar.id === game.player.avatar ? 'Selected' : 'Tap to choose') : 'Keep leveling up' %></small>
+            <small><%= avatar.unlocked ? (avatar.id === game.player.avatar ? 'Seleccionado' : 'Toca para elegir') : 'Sigue subiendo de nivel' %></small>
           </button>
         <% }) %>
       </div>

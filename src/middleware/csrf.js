@@ -9,7 +9,7 @@ function csrfProtection(request, response, next) {
     const expected = Buffer.from(request.session.csrfToken);
     const submitted = Buffer.from(String(submittedToken || ''));
     if (expected.length !== submitted.length || !crypto.timingSafeEqual(expected, submitted)) {
-      return response.status(403).render('pages/forbidden', { pageTitle: 'Request expired' });
+      return response.status(403).render('pages/forbidden', { pageTitle: 'Solicitud vencida' });
     }
   }
   return next();

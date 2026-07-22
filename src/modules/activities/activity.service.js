@@ -25,11 +25,11 @@ async function createActivity(input, currentUser) {
   const validatorIds = new Set(members.filter((item) => ['admin_player', 'validator'].includes(item.role)).map((item) => String(item.user._id)));
   const selectedValidators = [...new Set([input.validators].flat().filter(Boolean))];
 
-  if (!assignableIds.has(String(input.assignedTo))) throw validationError('Select a valid player.');
+  if (!assignableIds.has(String(input.assignedTo))) throw validationError('Selecciona una jugadora válida.');
   if (!selectedValidators.length || selectedValidators.some((id) => !validatorIds.has(String(id)))) {
-    throw validationError('Select at least one valid validator.');
+    throw validationError('Selecciona al menos una persona válida para revisar.');
   }
-  if (!REWARDS[input.difficulty]) throw validationError('Select a valid difficulty.');
+  if (!REWARDS[input.difficulty]) throw validationError('Selecciona una dificultad válida.');
 
   const frequency = ['once', 'daily', 'weekly'].includes(input.frequency) ? input.frequency : 'once';
   const startDate = input.startDate || input.dueDate;
@@ -37,7 +37,7 @@ async function createActivity(input, currentUser) {
 
   const weekdays = [...new Set([input.weekdays].flat().filter((value) => value !== undefined).map(Number))];
   if (frequency === 'weekly' && (!weekdays.length || weekdays.some((day) => !Number.isInteger(day) || day < 0 || day > 6))) {
-    throw validationError('Choose at least one valid day for a weekly mission.');
+    throw validationError('Elige al menos un día válido para la misión semanal.');
   }
 
   const common = {
@@ -142,10 +142,10 @@ async function materializeSeries(series) {
 function validateDateRange(startDate, endDate) {
   const today = localDateString(new Date());
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(startDate || '')) || startDate < today) {
-    throw validationError('Start date must be today or later.');
+    throw validationError('La fecha de inicio debe ser hoy o posterior.');
   }
   if (endDate && (!/^\d{4}-\d{2}-\d{2}$/.test(endDate) || endDate < startDate)) {
-    throw validationError('End date must be on or after the start date.');
+    throw validationError('La fecha final debe ser igual o posterior a la fecha de inicio.');
   }
 }
 
@@ -177,7 +177,7 @@ async function submitForApproval(activityId, completionNote, currentUser) {
   if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
 
   const note = String(completionNote || '').trim();
-  if (note.length > 500) throw validationError('Your note must be 500 characters or fewer.');
+  if (note.length > 500) throw validationError('Tu nota debe tener máximo 500 caracteres.');
 
   const activity = await Activity.findOneAndUpdate({
     _id: activityId,
@@ -204,7 +204,7 @@ async function submitForApproval(activityId, completionNote, currentUser) {
   }).select('status');
 
   if (!existing) throw notFoundError();
-  throw validationError('This mission cannot be sent for approval in its current status.');
+  throw validationError('Esta misión no puede enviarse para aprobación en su estado actual.');
 }
 
 async function listReviewableActivities(currentUser) {
@@ -235,11 +235,11 @@ async function getReviewableActivity(activityId, currentUser) {
 
 async function reviewActivity(activityId, decision, reviewNote, currentUser) {
   if (!Activity.db.base.isValidObjectId(activityId)) throw notFoundError();
-  if (!['approved', 'changes_requested'].includes(decision)) throw validationError('Select a valid review decision.');
+  if (!['approved', 'changes_requested'].includes(decision)) throw validationError('Selecciona una decisión válida.');
 
   const note = String(reviewNote || '').trim();
-  if (note.length > 500) throw validationError('Your feedback must be 500 characters or fewer.');
-  if (decision === 'changes_requested' && !note) throw validationError('Feedback is required when requesting changes.');
+  if (note.length > 500) throw validationError('Tus comentarios deben tener máximo 500 caracteres.');
+  if (decision === 'changes_requested' && !note) throw validationError('Debes escribir un comentario cuando solicites ajustes.');
 
   const session = await Activity.startSession();
   let reviewedActivity;

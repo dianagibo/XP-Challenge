@@ -6,11 +6,11 @@ const rewardService = require('../rewards/reward.service');
 const Achievement = require('./achievement.model');
 
 const ACHIEVEMENT_DEFINITIONS = Object.freeze([
-  { code: 'first_mission', name: 'First Victory', description: 'Complete your first approved mission.', icon: 'bi-flag-fill' },
-  { code: 'five_missions', name: 'Mission Explorer', description: 'Complete 5 approved missions.', icon: 'bi-compass-fill' },
-  { code: 'three_day_streak', name: 'On Fire', description: 'Reach a 3-day approval streak.', icon: 'bi-fire' },
-  { code: 'hundred_xp', name: 'XP Collector', description: 'Earn 100 total XP.', icon: 'bi-stars' },
-  { code: 'first_redemption', name: 'Reward Hunter', description: 'Redeem your first reward.', icon: 'bi-gift-fill' }
+  { code: 'first_mission', name: 'Primera victoria', description: 'Completa tu primera misión aprobada.', icon: 'bi-flag-fill' },
+  { code: 'five_missions', name: 'Exploradora de misiones', description: 'Completa 5 misiones aprobadas.', icon: 'bi-compass-fill' },
+  { code: 'three_day_streak', name: '¡En racha!', description: 'Alcanza una racha de 3 días.', icon: 'bi-fire' },
+  { code: 'hundred_xp', name: 'Coleccionista de XP', description: 'Consigue 100 XP en total.', icon: 'bi-stars' },
+  { code: 'first_redemption', name: 'Cazadora de recompensas', description: 'Canjea tu primera recompensa.', icon: 'bi-gift-fill' }
 ]);
 
 async function getPlayerProgress(playerId, familyId) {
@@ -20,7 +20,7 @@ async function getPlayerProgress(playerId, familyId) {
       .select('reviewedAt').sort({ reviewedAt: 1 }).lean(),
     Redemption.countDocuments({ family: familyId, player: playerId })
   ]);
-  if (!player) throw notFoundError('Player not found.');
+  if (!player) throw notFoundError('No encontramos a la jugadora.');
 
   const streak = calculateStreaks(approvedActivities.map((activity) => activity.reviewedAt));
   const stats = {

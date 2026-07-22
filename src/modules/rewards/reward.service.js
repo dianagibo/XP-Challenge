@@ -9,7 +9,7 @@ function getProgress(totalXp = 0) {
   const levelStartXp = (level - 1) * 100;
   return {
     level,
-    title: level >= 10 ? 'Legend' : level >= 7 ? 'Champion' : level >= 4 ? 'Pathfinder' : 'Rising Star',
+    title: level >= 10 ? 'Leyenda' : level >= 7 ? 'Campeona' : level >= 4 ? 'Exploradora' : 'Estrella en ascenso',
     currentXp: safeXp - levelStartXp,
     nextLevelXp: 100,
     totalXp: safeXp
@@ -19,7 +19,7 @@ function getProgress(totalXp = 0) {
 async function getPlayerRewards(userId) {
   const user = await User.findById(userId).select('totalXp coinBalance').lean();
   if (!user) {
-    const error = new Error('Player not found.');
+    const error = new Error('No encontramos a la jugadora.');
     error.status = 404;
     throw error;
   }
@@ -40,7 +40,7 @@ async function grantMissionRewards(activity, grantedBy, session) {
     { $inc: { totalXp: activity.xpReward, coinBalance: activity.coinReward } },
     { new: true, session }
   );
-  if (!player) throw new Error('The assigned player is no longer active.');
+  if (!player) throw new Error('La jugadora asignada ya no está activa.');
 
   const [transaction] = await RewardTransaction.create([{
     family: activity.family,
@@ -67,40 +67,40 @@ async function createReward(input, currentUser) {
   const description = String(input.description || '').trim();
   const coinCost = Number(input.coinCost);
   const icons = ['gift', 'movie', 'game', 'treat', 'outing', 'choice'];
-  if (!name || name.length > 80) throw validationError('Enter a reward name of 80 characters or fewer.');
-  if (description.length > 300) throw validationError('Description must be 300 characters or fewer.');
-  if (!Number.isInteger(coinCost) || coinCost < 1 || coinCost > 100000) throw validationError('Coin cost must be a whole number greater than zero.');
-  if (!icons.includes(input.icon)) throw validationError('Select a valid icon.');
+  if (!name || name.length > 80) throw validationError('Escribe un nombre de máximo 80 caracteres.');
+  if (description.length > 300) throw validationError('La descripción debe tener máximo 300 caracteres.');
+  if (!Number.isInteger(coinCost) || coinCost < 1 || coinCost > 100000) throw validationError('El costo debe ser un número entero mayor que cero.');
+  if (!icons.includes(input.icon)) throw validationError('Selecciona un ícono válido.');
   return RewardItem.create({ family: currentUser.familyId, name, description, coinCost, icon: input.icon, createdBy: currentUser.id });
 }
 
 async function toggleReward(rewardId, currentUser) {
-  if (!RewardItem.db.base.isValidObjectId(rewardId)) throw notFoundError('Reward not found.');
+  if (!RewardItem.db.base.isValidObjectId(rewardId)) throw notFoundError('No encontramos la recompensa.');
   const reward = await RewardItem.findOne({ _id: rewardId, family: currentUser.familyId });
-  if (!reward) throw notFoundError('Reward not found.');
+  if (!reward) throw notFoundError('No encontramos la recompensa.');
   reward.isActive = !reward.isActive;
   return reward.save();
 }
 
 async function redeemReward(rewardId, currentUser) {
-  if (!RewardItem.db.base.isValidObjectId(rewardId)) throw notFoundError('Reward not found.');
+  if (!RewardItem.db.base.isValidObjectId(rewardId)) throw notFoundError('No encontramos la recompensa.');
   const session = await RewardItem.startSession();
   let redemption;
   try {
     await session.withTransaction(async () => {
       const reward = await RewardItem.findOne({ _id: rewardId, family: currentUser.familyId, isActive: true }).session(session);
-      if (!reward) throw notFoundError('This reward is no longer available.');
+      if (!reward) throw notFoundError('Esta recompensa ya no está disponible.');
       const pendingRedemption = await Redemption.exists({
         family: currentUser.familyId, player: currentUser.id,
         reward: reward._id, status: 'pending_delivery'
       }).session(session);
-      if (pendingRedemption) throw conflictError('This reward is already waiting for delivery.');
+      if (pendingRedemption) throw conflictError('Esta recompensa ya está pendiente de entrega.');
       const player = await User.findOneAndUpdate(
         { _id: currentUser.id, isActive: true, coinBalance: { $gte: reward.coinCost } },
         { $inc: { coinBalance: -reward.coinCost } },
         { new: true, session }
       );
-      if (!player) throw conflictError('You do not have enough coins for this reward.');
+      if (!player) throw conflictError('No tienes suficientes monedas para esta recompensa.');
       [redemption] = await Redemption.create([{
         family: currentUser.familyId, reward: reward._id, player: currentUser.id,
         coinCost: reward.coinCost, coinBalanceAfter: player.coinBalance
@@ -108,7 +108,7 @@ async function redeemReward(rewardId, currentUser) {
     });
     return redemption;
   } catch (error) {
-    if (error?.code === 11000) throw conflictError('This reward is already waiting for delivery.');
+    if (error?.code === 11000) throw conflictError('Esta recompensa ya está pendiente de entrega.');
     throw error;
   } finally { await session.endSession(); }
 }
@@ -125,11 +125,11 @@ async function listFamilyRedemptions(familyId) {
 }
 
 async function deliverRedemption(redemptionId, currentUser) {
-  if (!Redemption.db.base.isValidObjectId(redemptionId)) throw notFoundError('Redemption not found.');
+  if (!Redemption.db.base.isValidObjectId(redemptionId)) throw notFoundError('No encontramos el canje.');
   const redemption = await Redemption.findOneAndUpdate({
     _id: redemptionId, family: currentUser.familyId, status: 'pending_delivery'
   }, { $set: { status: 'delivered', deliveredBy: currentUser.id, deliveredAt: new Date() } }, { new: true });
-  if (!redemption) throw notFoundError('This redemption is unavailable or already delivered.');
+  if (!redemption) throw notFoundError('Este canje no está disponible o ya fue entregado.');
   return redemption;
 }
 

@@ -1,7 +1,7 @@
 const authService = require('./auth.service');
 
 function showLogin(request, response) {
-  response.render('pages/login', { pageTitle: 'Log in', error: null, username: '' });
+  response.render('pages/login', { pageTitle: 'Iniciar sesión', error: null, username: '' });
 }
 
 async function login(request, response, next) {
@@ -9,14 +9,14 @@ async function login(request, response, next) {
     const { username, password } = request.body;
     if (!username || !password) {
       return response.status(400).render('pages/login', {
-        pageTitle: 'Log in', error: 'Enter your username and password.', username: username || ''
+        pageTitle: 'Iniciar sesión', error: 'Escribe tu usuario y contraseña.', username: username || ''
       });
     }
 
     const authenticatedUser = await authService.authenticate(username, password);
     if (!authenticatedUser) {
       return response.status(401).render('pages/login', {
-        pageTitle: 'Log in', error: 'The username or password is incorrect.', username
+        pageTitle: 'Iniciar sesión', error: 'El usuario o la contraseña son incorrectos.', username
       });
     }
 
