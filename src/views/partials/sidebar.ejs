@@ -15,6 +15,7 @@
     <a class="nav-link <%= activePage === 'bonuses' ? 'active' : '' %>" href="/bonuses"><i class="bi bi-award-fill"></i><span>Reconocimientos</span></a>
     <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'progress' ? 'active' : '' %>" href="/progress"><i class="bi bi-trophy-fill"></i><span>Progreso</span></a><% } %>
     <% if (['admin_player', 'player'].includes(currentUser?.role)) { %><a class="nav-link <%= activePage === 'goals' ? 'active' : '' %>" href="/weekly-goals"><i class="bi bi-bullseye"></i><span>Metas semanales</span></a><% } %>
+    <a class="nav-link <%= activePage === 'report' ? 'active' : '' %>" href="/weekly-report"><i class="bi bi-bar-chart-fill"></i><span>Reporte semanal</span></a>
     <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/avatars">
       <i class="bi bi-person-fill"></i><span>Perfil</span>
     </a>
