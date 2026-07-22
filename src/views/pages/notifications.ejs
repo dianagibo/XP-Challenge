@@ -1,0 +1,40 @@
+<%- include('../partials/head') %>
+<div class="app-shell">
+  <%- include('../partials/sidebar') %>
+  <main class="game-main mission-workspace">
+    <header class="workspace-header notification-header">
+      <div><span class="eyebrow">AL DÍA</span><h1>Notificaciones</h1><p>Aquí encuentras las novedades de tus misiones, metas y recompensas.</p></div>
+      <% if (notifications.some((item) => !item.readAt)) { %>
+        <form method="post" action="/notifications/read-all">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="secondary-action" type="submit">Marcar todas como leídas</button>
+        </form>
+      <% } %>
+    </header>
+
+    <% if (!notifications.length) { %>
+      <section class="empty-state notification-empty">
+        <i class="bi bi-bell"></i><h2>Todo está tranquilo por aquí</h2>
+        <p>Cuando haya novedades importantes, aparecerán en este espacio.</p>
+      </section>
+    <% } else { %>
+      <section class="notification-list" aria-label="Tus notificaciones">
+        <% notifications.forEach((notification) => { %>
+          <article class="notification-item <%= notification.readAt ? '' : 'unread' %>">
+            <div class="notification-icon"><i class="bi <%= notification.type.startsWith('mission') ? 'bi-flag-fill' : notification.type.startsWith('goal') ? 'bi-bullseye' : 'bi-gift-fill' %>"></i></div>
+            <div class="notification-content">
+              <div class="notification-title-row"><h2><%= notification.title %></h2><% if (!notification.readAt) { %><span class="unread-dot" aria-label="Sin leer"></span><% } %></div>
+              <p><%= notification.message %></p>
+              <small><%= formatDate(notification.createdAt, true) %></small>
+            </div>
+            <form method="post" action="/notifications/<%= notification._id %>/read">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="notification-action" type="submit"><%= notification.readAt ? 'Ver detalle' : 'Ver y marcar como leída' %></button>
+            </form>
+          </article>
+        <% }) %>
+      </section>
+    <% } %>
+  </main>
+</div>
+<%- include('../partials/footer') %>

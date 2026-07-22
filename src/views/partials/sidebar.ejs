@@ -18,6 +18,10 @@
       <i class="bi bi-person-fill"></i><span>Perfil</span>
     </a>
     <a class="nav-link <%= activePage === 'settings' ? 'active' : '' %>" href="/account/settings"><i class="bi bi-gear-fill"></i><span>Configuración</span></a>
+    <a class="nav-link notification-nav-link <%= activePage === 'notifications' ? 'active' : '' %>" href="/notifications">
+      <i class="bi bi-bell-fill"></i><span>Notificaciones</span>
+      <% if (unreadNotificationCount > 0) { %><strong class="notification-badge" aria-label="<%= unreadNotificationCount %> sin leer"><%= unreadNotificationCount > 99 ? '99+' : unreadNotificationCount %></strong><% } %>
+    </a>
   </nav>
 
   <form class="logout-form" method="post" action="/auth/logout">

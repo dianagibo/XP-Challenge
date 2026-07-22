@@ -11,7 +11,12 @@
       </div>
       <div class="top-actions">
         <div class="coin-pill"><i class="bi bi-coin"></i><strong><%= game.player.coins %></strong></div>
-        <button class="icon-button" type="button" aria-label="Notificaciones"><i class="bi bi-bell"></i><span></span></button>
+        <a class="icon-button notification-bell" href="/notifications" aria-label="Notificaciones<%= unreadNotificationCount > 0 ? `: ${unreadNotificationCount} sin leer` : '' %>">
+          <i class="bi bi-bell<%= unreadNotificationCount > 0 ? '-fill' : '' %>"></i>
+          <% if (unreadNotificationCount > 0) { %>
+            <strong class="notification-badge"><%= unreadNotificationCount > 99 ? '99+' : unreadNotificationCount %></strong>
+          <% } %>
+        </a>
         <a href="/avatars" class="avatar-link" aria-label="Abrir perfil">
           <%- include('../partials/avatar', { avatar: game.avatars.find(item => item.id === game.player.avatar), size: 'sm' }) %>
         </a>

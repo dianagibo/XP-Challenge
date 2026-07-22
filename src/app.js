@@ -10,6 +10,8 @@ const activityRoutes = require('./modules/activities/activity.routes');
 const rewardRoutes = require('./modules/rewards/reward.routes');
 const weeklyGoalRoutes = require('./modules/goals/weekly-goal.routes');
 const accountRoutes = require('./modules/accounts/account.routes');
+const notificationRoutes = require('./modules/notifications/notification.routes');
+const notificationService = require('./modules/notifications/notification.service');
 const { exposeCurrentUser } = require('./middleware/authentication');
 const { notFound, errorHandler } = require('./middleware/error-handler');
 const csrfProtection = require('./middleware/csrf');
@@ -47,6 +49,7 @@ app.use(session({
   }
 }));
 app.use(exposeCurrentUser);
+app.use(notificationService.exposeUnreadCount);
 app.use((request, response, next) => {
   const labels = {
     category: { all: 'Todas las misiones', home: 'Hogar', school: 'Colegio', wellbeing: 'Bienestar', personal_growth: 'Crecimiento personal', family: 'Familia' },
@@ -67,6 +70,7 @@ app.use('/missions', activityRoutes);
 app.use('/reward-catalog', rewardRoutes);
 app.use('/weekly-goals', weeklyGoalRoutes);
 app.use('/account', accountRoutes);
+app.use('/notifications', notificationRoutes);
 app.use('/', homeRoutes);
 app.use(notFound);
 app.use(errorHandler);
