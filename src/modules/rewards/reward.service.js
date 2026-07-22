@@ -7,12 +7,11 @@ const notificationService = require('../notifications/notification.service');
 function getProgress(totalXp = 0) {
   const safeXp = Math.max(0, Number(totalXp) || 0);
   const level = Math.floor(safeXp / 100) + 1;
-  const levelStartXp = (level - 1) * 100;
   return {
     level,
     title: level >= 10 ? 'Leyenda' : level >= 7 ? 'Campeona' : level >= 4 ? 'Exploradora' : 'Estrella en ascenso',
-    currentXp: safeXp - levelStartXp,
-    nextLevelXp: 100,
+    currentXp: safeXp,
+    nextLevelXp: level * 100,
     totalXp: safeXp
   };
 }
