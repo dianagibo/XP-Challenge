@@ -46,6 +46,16 @@ The repository includes `render.yaml`. In Render, create a Blueprint from the Gi
 
 Before the first family login, run `npm run seed` once from a trusted local terminal using the production `MONGODB_URI` and temporary `SEED_*_PASSWORD` values. Remove those values immediately afterward. The seed is idempotent, but running it again resets the three passwords.
 
+### Spanish localization migration
+
+For an existing database created before US-12, run this command exactly once from a trusted local terminal with its `MONGODB_URI`:
+
+```bash
+npm run migrate:spanish
+```
+
+The migration is idempotent. It only renames the original `Mom` user to `Mamá` and the default family name to `Familia XP Challenge`. It does not change usernames, passwords, missions, balances, achievements, rewards or history. Do not run the seed again for localization.
+
 ### Release checklist
 
 1. Confirm the Render deploy is green and `/health` returns `{"status":"ok","database":"connected"}`.

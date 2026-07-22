@@ -8,7 +8,7 @@ const Membership = require('../modules/families/membership.model');
 const accounts = [
   { key: 'DIANA', name: 'Diana', username: process.env.SEED_DIANA_USERNAME || 'diana', role: 'admin_player', avatar: 'lumi' },
   { key: 'SOFI', name: 'Sofi', username: process.env.SEED_SOFI_USERNAME || 'sofi', role: 'player', avatar: 'nova' },
-  { key: 'MOM', name: 'Mom', username: process.env.SEED_MOM_USERNAME || 'mom', role: 'validator', avatar: 'aria' }
+  { key: 'MOM', name: 'Mamá', username: process.env.SEED_MOM_USERNAME || 'mom', role: 'validator', avatar: 'aria' }
 ];
 
 async function seed() {
@@ -19,7 +19,7 @@ async function seed() {
 
   await connectDatabase();
   const family = await Family.findOneAndUpdate(
-    { name: process.env.SEED_FAMILY_NAME || 'XP Challenge Family' },
+    { name: process.env.SEED_FAMILY_NAME || 'Familia XP Challenge' },
     { timezone: 'America/Bogota', currency: 'COP', isActive: true },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );

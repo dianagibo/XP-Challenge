@@ -11,7 +11,7 @@ async function showDashboard(request, response, next) {
       const flash = request.session.flash;
       delete request.session.flash;
       return response.render('pages/validator-home', {
-        pageTitle: 'Validation center', activePage: 'home', activities, flash
+        pageTitle: 'Centro de validación', activePage: 'home', activities, flash
       });
     } catch (error) { return next(error); }
   }
@@ -33,7 +33,7 @@ async function showDashboard(request, response, next) {
       activeGoal = goals.find((goal) => goal.status === 'active') || goals.find((goal) => goal.status === 'completed') || null;
       game.streak = {
         count: progress.stats.currentStreak,
-        label: progress.stats.currentStreak === 1 ? 'day' : 'days',
+        label: progress.stats.currentStreak === 1 ? 'día' : 'días',
         best: progress.stats.bestStreak
       };
     } else {
@@ -42,7 +42,7 @@ async function showDashboard(request, response, next) {
     const flash = request.session.flash;
     delete request.session.flash;
     return response.render('pages/dashboard', {
-      pageTitle: 'My adventure', activePage: 'home', game, activities,
+      pageTitle: 'Mi aventura', activePage: 'home', game, activities,
       canManageMissions: request.session.user.role === 'admin_player', activeGoal, flash
     });
   } catch (error) {
@@ -55,7 +55,7 @@ function showAvatars(request, response) {
   game.player.name = request.session.user.name;
   game.player.avatar = request.session.user.avatar || game.player.avatar;
   response.render('pages/avatars', {
-    pageTitle: 'Choose your avatar',
+    pageTitle: 'Elige tu avatar',
     activePage: 'profile',
     game
   });
@@ -68,7 +68,7 @@ async function showRewards(request, response, next) {
       rewardService.listPlayerTransactions(request.session.user.id, request.session.user.familyId)
     ]);
     return response.render('pages/rewards', {
-      pageTitle: 'My rewards', activePage: 'rewards', rewards, transactions
+      pageTitle: 'Mis recompensas', activePage: 'rewards', rewards, transactions
     });
   } catch (error) { return next(error); }
 }
@@ -78,14 +78,14 @@ async function showProgress(request, response, next) {
     if (request.session.user.role === 'admin_player') {
       const players = await progressService.getFamilyProgress(request.session.user.familyId);
       return response.render('pages/family-progress', {
-        pageTitle: 'Family progress', activePage: 'progress', players
+        pageTitle: 'Progreso familiar', activePage: 'progress', players
       });
     }
     const progress = await progressService.getPlayerProgress(
       request.session.user.id, request.session.user.familyId
     );
     return response.render('pages/progress', {
-      pageTitle: 'My progress', activePage: 'progress', progress
+      pageTitle: 'Mi progreso', activePage: 'progress', progress
     });
   } catch (error) { return next(error); }
 }

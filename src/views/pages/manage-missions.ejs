@@ -3,33 +3,33 @@
   <%- include('../partials/sidebar') %>
   <main class="game-main mission-workspace">
     <header class="workspace-header">
-      <div><span class="eyebrow">MISSION CONTROL</span><h1>Manage missions</h1><p>Follow every responsibility from assignment to approval.</p></div>
-      <a class="primary-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Create mission</a>
+      <div><span class="eyebrow">CONTROL DE MISIONES</span><h1>Administrar misiones</h1><p>Sigue cada responsabilidad desde su asignación hasta la aprobación.</p></div>
+      <a class="primary-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Crear misión</a>
     </header>
     <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
     <% if (recurringMissions.length) { %>
       <section class="form-card">
-        <div class="form-card-heading"><span><i class="bi bi-arrow-repeat"></i></span><div><h2>Recurring missions</h2><p>Pause or resume future occurrences without losing completed history.</p></div></div>
+        <div class="form-card-heading"><span><i class="bi bi-arrow-repeat"></i></span><div><h2>Misiones recurrentes</h2><p>Pausa o reactiva las próximas misiones sin perder el historial completado.</p></div></div>
         <div class="manage-list">
           <% recurringMissions.forEach((series) => { %>
             <article class="manage-card">
               <div class="mission-icon icon-purple"><i class="bi bi-arrow-repeat"></i></div>
-              <div class="manage-copy"><div><span class="mission-category"><%= series.frequency %><%= series.frequency === 'weekly' ? ' · ' + series.weekdays.map(day => ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day]).join(', ') : '' %></span><h2><%= series.title %></h2></div><p>Starts <%= series.startDate %><%= series.endDate ? ' · Ends ' + series.endDate : ' · No end date' %></p></div>
-              <div class="manage-reward"><span class="status-chip <%= series.isActive ? 'status-approved' : 'status-changes_requested' %>"><%= series.isActive ? 'active' : 'paused' %></span><form method="post" action="/missions/recurring/<%= series._id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= series.isActive ? 'pause' : 'resume' %>"><button class="secondary-action" type="submit"><%= series.isActive ? 'Pause' : 'Resume' %></button></form></div>
+              <div class="manage-copy"><div><span class="mission-category"><%= labelFor('frequency', series.frequency) %><%= series.frequency === 'weekly' ? ' · ' + series.weekdays.map(day => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][day]).join(', ') : '' %></span><h2><%= series.title %></h2></div><p>Inicia <%= series.startDate %><%= series.endDate ? ' · Finaliza ' + series.endDate : ' · Sin fecha final' %></p></div>
+              <div class="manage-reward"><span class="status-chip <%= series.isActive ? 'status-approved' : 'status-changes_requested' %>"><%= series.isActive ? 'Activa' : 'Pausada' %></span><form method="post" action="/missions/recurring/<%= series._id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= series.isActive ? 'pause' : 'resume' %>"><button class="secondary-action" type="submit"><%= series.isActive ? 'Pausar' : 'Reactivar' %></button></form></div>
             </article>
           <% }) %>
         </div>
       </section>
     <% } %>
     <% if (!activities.length) { %>
-      <section class="manage-empty"><span><i class="bi bi-map"></i></span><h2>Your mission board is ready</h2><p>Create the first responsibility and it will appear on Sofi's dashboard immediately.</p><a class="primary-action" href="/missions/create">Create the first mission</a></section>
+      <section class="manage-empty"><span><i class="bi bi-map"></i></span><h2>Tu tablero de misiones está listo</h2><p>Crea la primera responsabilidad y aparecerá de inmediato en el tablero de Sofi.</p><a class="primary-action" href="/missions/create">Crear la primera misión</a></section>
     <% } else { %>
       <section class="manage-list">
         <% activities.forEach((mission) => { %>
           <article class="manage-card">
             <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
-            <div class="manage-copy"><div><span class="mission-category"><%= mission.category.replace('_', ' ') %> · <%= mission.difficulty %><%= mission.recurringMission ? ' · recurring' : '' %></span><h2><%= mission.title %></h2></div><p><%= mission.description %></p><div class="manage-meta"><span><i class="bi bi-person"></i><%= mission.assignedTo.name %></span><span><i class="bi bi-calendar3"></i><%= new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(mission.dueDate) %></span><span><i class="bi bi-shield-check"></i><%= mission.validators.map(item => item.name).join(' or ') %></span></div></div>
-            <div class="manage-reward"><strong>+<%= mission.xpReward %> XP</strong><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span><span class="status-chip status-<%= mission.status %>"><%= mission.status.replace('_', ' ') %></span></div>
+            <div class="manage-copy"><div><span class="mission-category"><%= labelFor('category', mission.category) %> · <%= labelFor('difficulty', mission.difficulty) %><%= mission.recurringMission ? ' · recurrente' : '' %></span><h2><%= mission.title %></h2></div><p><%= mission.description %></p><div class="manage-meta"><span><i class="bi bi-person"></i><%= mission.assignedTo.name %></span><span><i class="bi bi-calendar3"></i><%= formatDate(mission.dueDate) %></span><span><i class="bi bi-shield-check"></i><%= mission.validators.map(item => item.name).join(' o ') %></span></div></div>
+            <div class="manage-reward"><strong>+<%= mission.xpReward %> XP</strong><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span><span class="status-chip status-<%= mission.status %>"><%= labelFor('status', mission.status) %></span></div>
           </article>
         <% }) %>
       </section>

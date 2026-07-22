@@ -4,11 +4,11 @@
   <main class="game-main mission-workspace">
     <header class="workspace-header">
       <div>
-        <span class="eyebrow">MISSION DETAILS</span>
+        <span class="eyebrow">DETALLES DE LA MISIÓN</span>
         <h1><%= activity.title %></h1>
-        <p>Review the mission and send it when you are ready.</p>
+        <p>Revisa la misión y envíala cuando estés lista.</p>
       </div>
-      <a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back to missions</a>
+      <a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Volver a misiones</a>
     </header>
 
     <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle-fill"></i><%= error %></div><% } %>
@@ -25,32 +25,32 @@
       </div>
 
       <div class="mission-detail-grid">
-        <div><span>Due date</span><strong><i class="bi bi-calendar3"></i> <%= new Intl.DateTimeFormat('en', { dateStyle: 'long' }).format(activity.dueDate) %></strong></div>
-        <div><span>Validators</span><strong><i class="bi bi-shield-check"></i> <%= activity.validators.map(item => item.name).join(' or ') %></strong></div>
+        <div><span>Fecha límite</span><strong><i class="bi bi-calendar3"></i> <%= formatDate(activity.dueDate) %></strong></div>
+        <div><span>Personas que validan</span><strong><i class="bi bi-shield-check"></i> <%= activity.validators.map(item => item.name).join(' o ') %></strong></div>
       </div>
 
       <% if (activity.instructions) { %>
-        <div class="mission-instructions"><span>Instructions</span><p><%= activity.instructions %></p></div>
+        <div class="mission-instructions"><span>Instrucciones</span><p><%= activity.instructions %></p></div>
       <% } %>
 
       <% if (activity.status === 'changes_requested') { %>
-        <div class="review-feedback changes"><i class="bi bi-arrow-repeat"></i><div><strong>Changes requested</strong><p><%= activity.reviewNote %></p></div></div>
+        <div class="review-feedback changes"><i class="bi bi-arrow-repeat"></i><div><strong>Ajustes solicitados</strong><p><%= activity.reviewNote %></p></div></div>
       <% } %>
 
       <% if (['assigned', 'changes_requested'].includes(activity.status)) { %>
         <form class="submission-form" method="post" action="/missions/<%= activity._id %>/submit">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <label class="field">
-            Completion note <span>Optional · Tell your validator how it went.</span>
-            <textarea name="completionNote" rows="4" maxlength="500" placeholder="I completed this mission by..."><%= values.completionNote || '' %></textarea>
+            Nota de cumplimiento <span>Opcional · Cuéntale a quien valida cómo te fue.</span>
+            <textarea name="completionNote" rows="4" maxlength="500" placeholder="Completé esta misión..."><%= values.completionNote || '' %></textarea>
           </label>
-          <div class="submission-callout"><i class="bi bi-info-circle"></i><span>XP and coins will be added after Diana or Mom approves your mission.</span></div>
-          <div class="form-actions"><a class="secondary-action" href="/">Not yet</a><button class="primary-action" type="submit"><i class="bi bi-send-check"></i> Send for approval</button></div>
+          <div class="submission-callout"><i class="bi bi-info-circle"></i><span>Los XP y las monedas se sumarán cuando Diana o mamá aprueben tu misión.</span></div>
+          <div class="form-actions"><a class="secondary-action" href="/">Aún no</a><button class="primary-action" type="submit"><i class="bi bi-send-check"></i> Enviar para aprobación</button></div>
         </form>
       <% } else if (activity.status === 'pending_validation') { %>
-        <div class="awaiting-card"><i class="bi bi-hourglass-split"></i><div><strong>Awaiting approval</strong><p>This mission has already been sent to your validators.</p></div></div>
+        <div class="awaiting-card"><i class="bi bi-hourglass-split"></i><div><strong>Esperando aprobación</strong><p>Esta misión ya fue enviada para revisión.</p></div></div>
       <% } else { %>
-        <div class="review-feedback approved"><i class="bi bi-check-circle-fill"></i><div><strong>Mission approved</strong><p>You earned <%= activity.xpReward %> XP and <%= activity.coinReward %> coins. They are already reflected in your balance.</p></div></div>
+        <div class="review-feedback approved"><i class="bi bi-check-circle-fill"></i><div><strong>Misión aprobada</strong><p>Ganaste <%= activity.xpReward %> XP y <%= activity.coinReward %> monedas. Ya aparecen en tu saldo.</p></div></div>
       <% } %>
     </section>
   </main>

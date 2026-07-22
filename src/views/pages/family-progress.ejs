@@ -2,18 +2,18 @@
 <div class="app-shell">
   <%- include('../partials/sidebar') %>
   <main class="game-main mission-workspace">
-    <header class="workspace-header"><div><span class="eyebrow">FAMILY OVERVIEW</span><h1>Sofi's progress</h1><p>A positive overview of consistency, growth and achievements.</p></div><a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Back home</a></header>
+    <header class="workspace-header"><div><span class="eyebrow">RESUMEN FAMILIAR</span><h1>Progreso de Sofi</h1><p>Una mirada positiva a su constancia, crecimiento y logros.</p></div><a class="secondary-action" href="/"><i class="bi bi-arrow-left"></i> Volver al inicio</a></header>
     <% if (players.length) { players.forEach((progress) => { %>
       <section class="family-progress-card">
-        <div class="family-progress-heading"><div><span class="eyebrow">PLAYER</span><h2><%= progress.player.name %></h2></div><span class="level-chip"><i class="bi bi-stars"></i> Level <%= progress.stats.level %></span></div>
+        <div class="family-progress-heading"><div><span class="eyebrow">JUGADORA</span><h2><%= progress.player.name %></h2></div><span class="level-chip"><i class="bi bi-stars"></i> Nivel <%= progress.stats.level %></span></div>
         <div class="progress-stats-grid compact">
           <article class="progress-stat-card purple"><span>Total XP</span><strong><%= progress.stats.totalXp %></strong></article>
-          <article class="progress-stat-card orange"><span>Current / best streak</span><strong><%= progress.stats.currentStreak %> / <%= progress.stats.bestStreak %> days</strong></article>
-          <article class="progress-stat-card green"><span>Approved missions</span><strong><%= progress.stats.approvedMissions %></strong></article>
+          <article class="progress-stat-card orange"><span>Racha actual / mejor racha</span><strong><%= progress.stats.currentStreak %> / <%= progress.stats.bestStreak %> días</strong></article>
+          <article class="progress-stat-card green"><span>Misiones aprobadas</span><strong><%= progress.stats.approvedMissions %></strong></article>
         </div>
-        <div class="family-badges"><strong>Achievements</strong><div><% progress.achievements.forEach((achievement) => { %><span class="mini-badge <%= achievement.unlocked ? 'earned' : '' %>" title="<%= achievement.name %>"><i class="bi <%= achievement.unlocked ? achievement.icon : 'bi-lock-fill' %>"></i><%= achievement.name %></span><% }) %></div></div>
+        <div class="family-badges"><strong>Logros</strong><div><% progress.achievements.forEach((achievement) => { %><span class="mini-badge <%= achievement.unlocked ? 'earned' : '' %>" title="<%= achievement.name %>"><i class="bi <%= achievement.unlocked ? achievement.icon : 'bi-lock-fill' %>"></i><%= achievement.name %></span><% }) %></div></div>
       </section>
-    <% }) } else { %><article class="mission-empty"><i class="bi bi-people"></i><div><h3>No players yet</h3><p>Player progress will appear here.</p></div></article><% } %>
+    <% }) } else { %><article class="mission-empty"><i class="bi bi-people"></i><div><h3>Aún no hay jugadoras</h3><p>El progreso aparecerá aquí.</p></div></article><% } %>
   </main>
 </div>
 <%- include('../partials/footer') %>

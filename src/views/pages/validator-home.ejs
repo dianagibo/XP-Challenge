@@ -3,15 +3,15 @@
   <%- include('../partials/sidebar') %>
   <main class="game-main">
     <header class="topbar">
-      <div><span class="eyebrow">VALIDATION CENTER</span><h1>Hi, <%= currentUser.name %>!</h1><p>Here you will help celebrate completed missions.</p></div>
-      <form class="mobile-logout" method="post" action="/auth/logout"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="icon-button" type="submit" aria-label="Log out"><i class="bi bi-box-arrow-right"></i></button></form>
+      <div><span class="eyebrow">CENTRO DE VALIDACIÓN</span><h1>¡Hola, <%= currentUser.name %>!</h1><p>Aquí ayudarás a celebrar las misiones completadas.</p></div>
+      <form class="mobile-logout" method="post" action="/auth/logout"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="icon-button" type="submit" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-right"></i></button></form>
     </header>
     <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
     <section class="hero-card validator-hero">
-      <div class="hero-copy"><span class="level-chip"><i class="bi bi-shield-check"></i> Validator</span><h2><%= activities.length ? `${activities.length} mission${activities.length === 1 ? '' : 's'} waiting` : 'No missions waiting' %></h2><p><%= activities.length ? 'Sofi is ready for you to review and celebrate her effort.' : 'When Sofi completes a mission assigned to you, it will appear here.' %></p></div>
+      <div class="hero-copy"><span class="level-chip"><i class="bi bi-shield-check"></i> Validadora</span><h2><%= activities.length ? `${activities.length} ${activities.length === 1 ? 'misión pendiente' : 'misiones pendientes'}` : 'No hay misiones pendientes' %></h2><p><%= activities.length ? 'Sofi está lista para que revises y celebres su esfuerzo.' : 'Cuando Sofi complete una misión asignada a ti, aparecerá aquí.' %></p></div>
       <div class="validator-icon"><i class="bi bi-check2-circle"></i></div>
     </section>
-    <section class="validator-next"><span class="eyebrow">VALIDATION QUEUE</span><h2>Review completed missions</h2><p>Approve completed work or request a small adjustment with clear feedback.</p><a class="primary-action validator-cta" href="/missions/review">Open review queue <i class="bi bi-arrow-right"></i></a></section>
+    <section class="validator-next"><span class="eyebrow">COLA DE VALIDACIÓN</span><h2>Revisar misiones completadas</h2><p>Aprueba el trabajo o solicita un pequeño ajuste con comentarios claros.</p><a class="primary-action validator-cta" href="/missions/review">Abrir revisiones <i class="bi bi-arrow-right"></i></a></section>
   </main>
 </div>
 <%- include('../partials/footer') %>

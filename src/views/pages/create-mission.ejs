@@ -3,8 +3,8 @@
   <%- include('../partials/sidebar') %>
   <main class="game-main mission-workspace">
     <header class="workspace-header">
-      <div><span class="eyebrow">NEW ADVENTURE</span><h1>Create a mission</h1><p>Turn a responsibility into a clear and motivating challenge.</p></div>
-      <a class="secondary-action" href="/missions/manage"><i class="bi bi-arrow-left"></i> Back to missions</a>
+      <div><span class="eyebrow">NUEVA AVENTURA</span><h1>Crear una misión</h1><p>Convierte una responsabilidad en un reto claro y motivador.</p></div>
+      <a class="secondary-action" href="/missions/manage"><i class="bi bi-arrow-left"></i> Volver a misiones</a>
     </header>
 
     <% if (error) { %><div class="form-alert"><i class="bi bi-exclamation-circle"></i><%= error %></div><% } %>
@@ -12,42 +12,42 @@
     <form class="mission-form" method="post" action="/missions">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <section class="form-card">
-        <div class="form-card-heading"><span>1</span><div><h2>Mission details</h2><p>Make the goal easy to understand.</p></div></div>
+        <div class="form-card-heading"><span>1</span><div><h2>Detalles de la misión</h2><p>Haz que el objetivo sea fácil de entender.</p></div></div>
         <div class="form-grid">
-          <label class="field field-wide">Mission title<input name="title" required maxlength="100" value="<%= values.title || '' %>" placeholder="Complete your math homework"></label>
-          <label class="field field-wide">Description<textarea name="description" required maxlength="500" rows="3" placeholder="What does Sofi need to accomplish?"><%= values.description || '' %></textarea></label>
-          <label class="field">Category<select name="category" required><option value="">Choose a category</option><% categories.forEach((category) => { %><option value="<%= category.value %>" <%= values.category === category.value ? 'selected' : '' %>><%= category.label %></option><% }) %></select></label>
-          <label class="field">Frequency<select id="missionFrequency" name="frequency"><option value="once" <%= (values.frequency || 'once') === 'once' ? 'selected' : '' %>>One time</option><option value="daily" <%= values.frequency === 'daily' ? 'selected' : '' %>>Every day</option><option value="weekly" <%= values.frequency === 'weekly' ? 'selected' : '' %>>Selected weekdays</option></select></label>
-          <label class="field">Start date<input type="date" name="startDate" min="<%= minimumDate %>" required value="<%= values.startDate || values.dueDate || minimumDate %>"></label>
-          <label class="field recurring-only">End date <span>(optional)</span><input type="date" name="endDate" min="<%= minimumDate %>" value="<%= values.endDate || '' %>"></label>
-          <fieldset id="weekdayField" class="field field-wide validator-field"><legend>Repeat on</legend><div class="validator-options"><% [['1','Mon'],['2','Tue'],['3','Wed'],['4','Thu'],['5','Fri'],['6','Sat'],['0','Sun']].forEach(([value,label]) => { %><label><input type="checkbox" name="weekdays" value="<%= value %>" <%= [values.weekdays].flat().map(String).includes(value) ? 'checked' : '' %>><span><%= label %></span></label><% }) %></div></fieldset>
-          <label class="field field-wide">Extra instructions <span>(optional)</span><textarea name="instructions" maxlength="1000" rows="2" placeholder="Add a helpful tip or acceptance criteria"><%= values.instructions || '' %></textarea></label>
+          <label class="field field-wide">Título<input name="title" required maxlength="100" value="<%= values.title || '' %>" placeholder="Completar la tarea de matemáticas"></label>
+          <label class="field field-wide">Descripción<textarea name="description" required maxlength="500" rows="3" placeholder="¿Qué debe lograr Sofi?"><%= values.description || '' %></textarea></label>
+          <label class="field">Categoría<select name="category" required><option value="">Elige una categoría</option><% categories.forEach((category) => { %><option value="<%= category.value %>" <%= values.category === category.value ? 'selected' : '' %>><%= category.label %></option><% }) %></select></label>
+          <label class="field">Frecuencia<select id="missionFrequency" name="frequency"><option value="once" <%= (values.frequency || 'once') === 'once' ? 'selected' : '' %>>Una vez</option><option value="daily" <%= values.frequency === 'daily' ? 'selected' : '' %>>Todos los días</option><option value="weekly" <%= values.frequency === 'weekly' ? 'selected' : '' %>>Días seleccionados</option></select></label>
+          <label class="field">Fecha de inicio<input type="date" name="startDate" min="<%= minimumDate %>" required value="<%= values.startDate || values.dueDate || minimumDate %>"></label>
+          <label class="field recurring-only">Fecha final <span>(opcional)</span><input type="date" name="endDate" min="<%= minimumDate %>" value="<%= values.endDate || '' %>"></label>
+          <fieldset id="weekdayField" class="field field-wide validator-field"><legend>Repetir los</legend><div class="validator-options"><% [['1','Lun'],['2','Mar'],['3','Mié'],['4','Jue'],['5','Vie'],['6','Sáb'],['0','Dom']].forEach(([value,label]) => { %><label><input type="checkbox" name="weekdays" value="<%= value %>" <%= [values.weekdays].flat().map(String).includes(value) ? 'checked' : '' %>><span><%= label %></span></label><% }) %></div></fieldset>
+          <label class="field field-wide">Instrucciones adicionales <span>(opcional)</span><textarea name="instructions" maxlength="1000" rows="2" placeholder="Agrega una recomendación o criterio para completarla"><%= values.instructions || '' %></textarea></label>
         </div>
       </section>
 
       <section class="form-card">
-        <div class="form-card-heading"><span>2</span><div><h2>Challenge and rewards</h2><p>Difficulty suggests a balanced amount of XP and coins.</p></div></div>
+        <div class="form-card-heading"><span>2</span><div><h2>Reto y premios</h2><p>La dificultad sugiere una cantidad equilibrada de XP y monedas.</p></div></div>
         <div class="difficulty-grid">
           <% Object.entries(rewards).forEach(([difficulty, reward]) => { %>
-            <label class="difficulty-option"><input type="radio" name="difficulty" value="<%= difficulty %>" <%= (values.difficulty || 'easy') === difficulty ? 'checked' : '' %> required><span><strong><%= difficulty %></strong><small>+<%= reward.xp %> XP · <%= reward.coins %> coins</small></span></label>
+            <label class="difficulty-option"><input type="radio" name="difficulty" value="<%= difficulty %>" <%= (values.difficulty || 'easy') === difficulty ? 'checked' : '' %> required><span><strong><%= labelFor('difficulty', difficulty) %></strong><small>+<%= reward.xp %> XP · <%= reward.coins %> monedas</small></span></label>
           <% }) %>
         </div>
         <div class="reward-fields">
-          <label class="field">XP reward<input id="xpReward" type="number" name="xpReward" min="1" max="500" required value="<%= values.xpReward || rewards[values.difficulty || 'easy'].xp %>"></label>
-          <label class="field">Coin reward<input id="coinReward" type="number" name="coinReward" min="0" max="100" required value="<%= values.coinReward || rewards[values.difficulty || 'easy'].coins %>"></label>
-          <p><i class="bi bi-info-circle"></i> XP builds progress and never gets spent. Coins can be exchanged for rewards.</p>
+          <label class="field">Premio en XP<input id="xpReward" type="number" name="xpReward" min="1" max="500" required value="<%= values.xpReward || rewards[values.difficulty || 'easy'].xp %>"></label>
+          <label class="field">Premio en monedas<input id="coinReward" type="number" name="coinReward" min="0" max="100" required value="<%= values.coinReward || rewards[values.difficulty || 'easy'].coins %>"></label>
+          <p><i class="bi bi-info-circle"></i> Los XP aumentan tu progreso y no se gastan. Las monedas se pueden cambiar por recompensas.</p>
         </div>
       </section>
 
       <section class="form-card">
-        <div class="form-card-heading"><span>3</span><div><h2>People</h2><p>Choose the player and who may validate the result.</p></div></div>
+        <div class="form-card-heading"><span>3</span><div><h2>Personas</h2><p>Elige la jugadora y quién puede validar el resultado.</p></div></div>
         <div class="form-grid">
-          <label class="field field-wide">Assign to<select name="assignedTo" required><option value="">Choose a player</option><% players.forEach((item) => { %><option value="<%= item.user._id %>" <%= String(values.assignedTo || '') === String(item.user._id) ? 'selected' : '' %>><%= item.user.name %> (@<%= item.user.username %>)</option><% }) %></select></label>
-          <fieldset class="field field-wide validator-field"><legend>Who can validate?</legend><div class="validator-options"><% validators.forEach((item) => { const checked = [values.validators].flat().map(String).includes(String(item.user._id)); %><label><input type="checkbox" name="validators" value="<%= item.user._id %>" <%= checked ? 'checked' : '' %>><span><i class="bi bi-shield-check"></i><%= item.user.name %></span></label><% }) %></div></fieldset>
+          <label class="field field-wide">Asignar a<select name="assignedTo" required><option value="">Elige una jugadora</option><% players.forEach((item) => { %><option value="<%= item.user._id %>" <%= String(values.assignedTo || '') === String(item.user._id) ? 'selected' : '' %>><%= item.user.name %> (@<%= item.user.username %>)</option><% }) %></select></label>
+          <fieldset class="field field-wide validator-field"><legend>¿Quién puede validar?</legend><div class="validator-options"><% validators.forEach((item) => { const checked = [values.validators].flat().map(String).includes(String(item.user._id)); %><label><input type="checkbox" name="validators" value="<%= item.user._id %>" <%= checked ? 'checked' : '' %>><span><i class="bi bi-shield-check"></i><%= item.user.name %></span></label><% }) %></div></fieldset>
         </div>
       </section>
 
-      <div class="form-actions"><a class="secondary-action" href="/missions/manage">Cancel</a><button class="primary-action" type="submit"><i class="bi bi-stars"></i> Create mission</button></div>
+      <div class="form-actions"><a class="secondary-action" href="/missions/manage">Cancelar</a><button class="primary-action" type="submit"><i class="bi bi-stars"></i> Crear misión</button></div>
     </form>
   </main>
 </div>

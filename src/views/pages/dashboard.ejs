@@ -5,14 +5,14 @@
   <main class="game-main">
     <header class="topbar">
       <div>
-        <span class="eyebrow">SATURDAY, JULY 18</span>
-        <h1>Hey, <%= game.player.name %>! <span class="wave">✦</span></h1>
-        <p>Your next level is closer than you think.</p>
+        <span class="eyebrow"><%= new Intl.DateTimeFormat('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' }).format(new Date()).toUpperCase() %></span>
+        <h1>¡Hola, <%= game.player.name %>! <span class="wave">✦</span></h1>
+        <p>Tu próximo nivel está más cerca de lo que imaginas.</p>
       </div>
       <div class="top-actions">
         <div class="coin-pill"><i class="bi bi-coin"></i><strong><%= game.player.coins %></strong></div>
-        <button class="icon-button" type="button" aria-label="Notifications"><i class="bi bi-bell"></i><span></span></button>
-        <a href="/avatars" class="avatar-link" aria-label="Open profile">
+        <button class="icon-button" type="button" aria-label="Notificaciones"><i class="bi bi-bell"></i><span></span></button>
+        <a href="/avatars" class="avatar-link" aria-label="Abrir perfil">
           <%- include('../partials/avatar', { avatar: game.avatars.find(item => item.id === game.player.avatar), size: 'sm' }) %>
         </a>
       </div>
@@ -20,12 +20,12 @@
 
     <section class="hero-card">
       <div class="hero-copy">
-        <span class="level-chip"><i class="bi bi-stars"></i> Level <%= game.player.level %></span>
+        <span class="level-chip"><i class="bi bi-stars"></i> Nivel <%= game.player.level %></span>
         <h2><%= game.player.title %></h2>
-        <p>Every mission makes your character stronger.</p>
+        <p>Cada misión hace más fuerte a tu personaje.</p>
         <div class="xp-row">
           <span><strong><%= game.player.currentXp %></strong> / <%= game.player.nextLevelXp %> XP</span>
-          <span><%= game.player.nextLevelXp - game.player.currentXp %> XP to level up</span>
+          <span>Te faltan <%= game.player.nextLevelXp - game.player.currentXp %> XP para subir de nivel</span>
         </div>
         <div class="progress hero-progress">
           <div class="progress-bar" style="width: <%= Math.round((game.player.currentXp / game.player.nextLevelXp) * 100) %>%"></div>
@@ -41,8 +41,8 @@
     <div class="dashboard-grid">
       <section class="main-column">
         <div class="section-heading" id="missions">
-          <div><span class="eyebrow">TODAY'S ADVENTURE</span><h2>Your missions</h2></div>
-          <% if (canManageMissions) { %><a class="text-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Create mission</a><% } %>
+          <div><span class="eyebrow">AVENTURA DE HOY</span><h2>Tus misiones</h2></div>
+          <% if (canManageMissions) { %><a class="text-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Crear misión</a><% } %>
         </div>
         <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
         <% if (activities.length) { %>
@@ -50,20 +50,20 @@
           <% activities.forEach((mission) => { %>
             <article class="mission-card <%= mission.status === 'pending_validation' ? 'is-awaiting' : '' %>">
               <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
-              <div class="mission-copy"><span class="mission-category"><%= mission.category.replace('_', ' ') %> · <%= mission.difficulty %><%= mission.recurringMission ? ' · recurring' : '' %></span><h3><%= mission.title %></h3><p><%= mission.description %><br><small>Due <%= new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(mission.dueDate) %></small></p></div>
+              <div class="mission-copy"><span class="mission-category"><%= labelFor('category', mission.category) %> · <%= labelFor('difficulty', mission.difficulty) %><%= mission.recurringMission ? ' · recurrente' : '' %></span><h3><%= mission.title %></h3><p><%= mission.description %><br><small>Fecha límite: <%= formatDate(mission.dueDate) %></small></p></div>
               <div class="mission-reward"><span>+<%= mission.xpReward %> XP</span><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span></div>
               <% if (!canManageMissions && ['assigned', 'changes_requested'].includes(mission.status)) { %>
-                <a class="round-action" href="/missions/<%= mission._id %>" aria-label="Open <%= mission.title %>"><i class="bi bi-chevron-right"></i></a>
+                <a class="round-action" href="/missions/<%= mission._id %>" aria-label="Abrir <%= mission.title %>"><i class="bi bi-chevron-right"></i></a>
               <% } else { %>
-                <span class="status-chip status-<%= mission.status %>"><%= mission.status === 'pending_validation' ? 'Awaiting approval' : mission.status.replace('_', ' ') %></span>
+                <span class="status-chip status-<%= mission.status %>"><%= labelFor('status', mission.status) %></span>
               <% } %>
             </article>
           <% }) %>
           </div>
         <% } else if (canManageMissions) { %>
-          <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>Ready to create the first mission?</h3><p>Assign a meaningful challenge to Sofi and choose its rewards.</p></div><a class="primary-action" href="/missions/create">Create mission</a></article>
+          <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>¿Lista para crear la primera misión?</h3><p>Asígnale a Sofi un reto con propósito y elige sus premios.</p></div><a class="primary-action" href="/missions/create">Crear misión</a></article>
         <% } else { %>
-          <article class="mission-empty"><i class="bi bi-flag"></i><div><h3>No missions yet</h3><p>Your next adventure will appear here.</p></div></article>
+          <article class="mission-empty"><i class="bi bi-flag"></i><div><h3>Aún no tienes misiones</h3><p>Tu próxima aventura aparecerá aquí.</p></div></article>
         <% } %>
 
       </section>
@@ -71,9 +71,9 @@
       <aside class="right-column">
         <article class="streak-card">
           <div class="fire"><i class="bi bi-fire"></i></div>
-          <div><span class="eyebrow">CURRENT STREAK</span><h2><%= game.streak.count %> <small><%= game.streak.label %></small></h2><p>Personal best: <strong><%= game.streak.best %> days</strong></p></div>
+          <div><span class="eyebrow">RACHA ACTUAL</span><h2><%= game.streak.count %> <small><%= game.streak.label %></small></h2><p>Mejor racha: <strong><%= game.streak.best %> días</strong></p></div>
           <div class="streak-days">
-            <% ['M','T','W','T','F','S','S'].forEach((day, index) => { const isStreakDay = index >= 7 - Math.min(game.streak.count, 7); %>
+            <% ['L','M','X','J','V','S','D'].forEach((day, index) => { const isStreakDay = index >= 7 - Math.min(game.streak.count, 7); %>
               <span class="<%= isStreakDay ? 'done' : '' %>"><i class="bi <%= isStreakDay ? 'bi-check' : '' %>"></i><small><%= day %></small></span>
             <% }) %>
           </div>
@@ -81,21 +81,21 @@
 
         <% if (activeGoal) { %><a class="team-card dashboard-goal" href="/weekly-goals">
           <div class="team-header"><span><i class="bi bi-bullseye"></i></span><small><%= activeGoal.endDate %></small></div>
-          <span class="eyebrow">WEEKLY GOAL</span>
+          <span class="eyebrow">META SEMANAL</span>
           <h2><%= activeGoal.title %></h2>
-          <p><%= activeGoal.completedCount %> of <%= activeGoal.targetCount %> approved missions</p>
-          <div class="team-progress-label"><span>Weekly progress</span><strong><%= activeGoal.percent %>%</strong></div>
+          <p><%= activeGoal.completedCount %> de <%= activeGoal.targetCount %> misiones aprobadas</p>
+          <div class="team-progress-label"><span>Progreso semanal</span><strong><%= activeGoal.percent %>%</strong></div>
           <div class="progress"><div class="progress-bar" style="width: <%= activeGoal.percent %>%"></div></div>
           <div class="team-footer"><strong><i class="bi bi-stars"></i> +<%= activeGoal.xpBonus %> XP · <i class="bi bi-coin"></i> +<%= activeGoal.coinBonus %></strong></div>
         </a><% } else { %><a class="team-card dashboard-goal" href="/weekly-goals">
           <div class="team-header"><span><i class="bi bi-bullseye"></i></span></div>
-          <span class="eyebrow">WEEKLY GOAL</span>
-          <h2>No active goal</h2>
-          <p><%= canManageMissions ? 'Create a short goal to celebrate Sofi’s progress this week.' : 'Your next weekly goal will appear here.' %></p>
+          <span class="eyebrow">META SEMANAL</span>
+          <h2>No hay una meta activa</h2>
+          <p><%= canManageMissions ? 'Crea una meta corta para celebrar el progreso de Sofi esta semana.' : 'Tu próxima meta semanal aparecerá aquí.' %></p>
         </a><% } %>
 
         <a class="profile-teaser" href="/avatars">
-          <div><span class="eyebrow">MAKE IT YOURS</span><h3>Choose your avatar</h3><p>New characters unlock as you level up.</p></div>
+          <div><span class="eyebrow">HAZLO A TU MANERA</span><h3>Elige tu avatar</h3><p>Desbloquea nuevos personajes al subir de nivel.</p></div>
           <i class="bi bi-arrow-up-right"></i>
         </a>
       </aside>
