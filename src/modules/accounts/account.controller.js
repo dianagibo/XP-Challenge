@@ -30,6 +30,14 @@ async function selectAvatar(request, response, next) {
     return response.redirect('/avatars');
   } catch (error) { return next(error); }
 }
+async function updatePreferences(request, response, next) {
+  try {
+    const preferences = await accountService.updatePreferences(request.session.user, request.body);
+    request.session.user.preferences = preferences;
+    request.session.flash = { type: 'success', message: '¡Tu estilo personal fue actualizado!' };
+    return response.redirect('/account/settings');
+  } catch (error) { return handle(request, response, next, error); }
+}
 async function handle(request, response, next, error) {
   if (error.status !== 400) return next(error);
   try {
@@ -37,4 +45,4 @@ async function handle(request, response, next, error) {
     return response.status(400).render('pages/account-settings', { pageTitle: 'Configuración de cuenta', activePage: 'settings', accounts, flash: null, error: error.message });
   } catch (lookupError) { return next(lookupError); }
 }
-module.exports = { showSettings, changePassword, resetPassword, selectAvatar };
+module.exports = { showSettings, changePassword, resetPassword, selectAvatar, updatePreferences };

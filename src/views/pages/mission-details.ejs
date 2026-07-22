@@ -37,14 +37,17 @@
         <div class="review-feedback changes"><i class="bi bi-arrow-repeat"></i><div><strong>Ajustes solicitados</strong><p><%= activity.reviewNote %></p></div></div>
       <% } %>
 
-      <% if (['assigned', 'changes_requested'].includes(activity.status)) { %>
+      <% if (activity.status === 'pending_acceptance') { %>
+        <div class="shared-challenge-callout"><i class="bi bi-joystick"></i><div><strong>¡Sofi te está retando!</strong><p>Acepta para comenzar o devuélvelo con un mensaje para que puedan acordar otro reto.</p></div></div>
+        <div class="shared-response-grid"><form method="post" action="/missions/<%= activity._id %>/accept"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="primary-action" type="submit"><i class="bi bi-check-lg"></i> Aceptar reto</button></form><form class="stacked-form" method="post" action="/missions/<%= activity._id %>/return"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><label>Mensaje para Sofi<textarea name="acceptanceNote" required maxlength="500" placeholder="Propongamos otro reto porque..."></textarea></label><button class="secondary-action" type="submit">Devolver con mensaje</button></form></div>
+      <% } else if (['assigned', 'changes_requested'].includes(activity.status)) { %>
         <form class="submission-form" method="post" action="/missions/<%= activity._id %>/submit">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <label class="field">
             Nota de cumplimiento <span>Opcional · Cuéntale a quien valida cómo te fue.</span>
             <textarea name="completionNote" rows="4" maxlength="500" placeholder="Completé esta misión..."><%= values.completionNote || '' %></textarea>
           </label>
-          <div class="submission-callout"><i class="bi bi-info-circle"></i><span>Los XP y las monedas se sumarán cuando Diana o mamá aprueben tu misión.</span></div>
+          <div class="submission-callout"><i class="bi bi-info-circle"></i><span>Los XP y las monedas se sumarán cuando quien creó el reto lo apruebe.</span></div>
           <div class="form-actions"><a class="secondary-action" href="/">Aún no</a><button class="primary-action" type="submit"><i class="bi bi-send-check"></i> Enviar para aprobación</button></div>
         </form>
       <% } else if (activity.status === 'pending_validation') { %>

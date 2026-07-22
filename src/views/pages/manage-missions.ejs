@@ -3,8 +3,8 @@
   <%- include('../partials/sidebar') %>
   <main class="game-main mission-workspace">
     <header class="workspace-header">
-      <div><span class="eyebrow">CONTROL DE MISIONES</span><h1>Administrar misiones</h1><p>Sigue cada responsabilidad desde su asignación hasta la aprobación.</p></div>
-      <div class="top-actions"><a class="secondary-action" href="/missions/archive"><i class="bi bi-archive"></i> Archivadas</a><a class="primary-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Crear misión</a></div>
+      <div><span class="eyebrow"><%= currentUser.role === 'player' ? 'RETOS COMPARTIDOS' : 'CONTROL DE MISIONES' %></span><h1><%= currentUser.role === 'player' ? 'Mis retos para Diana' : 'Administrar misiones' %></h1><p><%= currentUser.role === 'player' ? 'Crea retos, revisa su avance y celebra también los logros de Diana.' : 'Sigue cada responsabilidad desde su asignación hasta la aprobación.' %></p></div>
+      <div class="top-actions"><% if (currentUser.role === 'admin_player') { %><a class="secondary-action" href="/missions/archive"><i class="bi bi-archive"></i> Archivadas</a><% } %><a class="primary-action" href="/missions/create"><i class="bi bi-plus-lg"></i> <%= currentUser.role === 'player' ? 'Retar a Diana' : 'Crear misión' %></a></div>
     </header>
     <% if (flash) { %><div class="<%= flash.type === 'error' ? 'form-alert' : 'success-alert' %>"><i class="bi bi-<%= flash.type === 'error' ? 'exclamation-circle' : 'check-circle-fill' %>"></i><%= flash.message %></div><% } %>
     <% if (recurringMissions.length) { %>
@@ -32,9 +32,9 @@
             <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
             <div class="manage-copy"><div><span class="mission-category"><%= labelFor('category', mission.category) %> · <%= labelFor('difficulty', mission.difficulty) %><%= mission.recurringMission ? ' · recurrente' : '' %></span><h2><%= mission.title %></h2></div><p><%= mission.description %></p><div class="manage-meta"><span><i class="bi bi-person"></i><%= mission.assignedTo.name %></span><span><i class="bi bi-calendar3"></i><%= formatDate(mission.dueDate) %></span><span><i class="bi bi-shield-check"></i><%= mission.validators.map(item => item.name).join(' o ') %></span></div></div>
             <div class="manage-reward"><strong>+<%= mission.xpReward %> XP</strong><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span><span class="status-chip status-<%= mission.status %>"><%= labelFor('status', mission.status) %></span><div class="mission-manage-actions">
-              <% if (['assigned','changes_requested'].includes(mission.status)) { %><a class="secondary-action compact-action" href="/missions/<%= mission._id %>/edit">Editar</a><% } %>
-              <% if (['assigned','changes_requested','pending_validation'].includes(mission.status)) { %><form method="post" action="/missions/<%= mission._id %>/cancel"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="danger-action compact-action" type="submit" onclick="return confirm('¿Cancelar esta misión? No se eliminará el historial.')">Cancelar</button></form><% } %>
-              <% if (['approved','canceled'].includes(mission.status)) { %><form method="post" action="/missions/<%= mission._id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="secondary-action compact-action" type="submit" onclick="return confirm('¿Mover esta misión al historial archivado?')">Archivar</button></form><% } %>
+              <% if (currentUser.role === 'admin_player' && ['assigned','changes_requested'].includes(mission.status)) { %><a class="secondary-action compact-action" href="/missions/<%= mission._id %>/edit">Editar</a><% } %>
+              <% if (currentUser.role === 'admin_player' && ['assigned','changes_requested','pending_validation'].includes(mission.status)) { %><form method="post" action="/missions/<%= mission._id %>/cancel"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="danger-action compact-action" type="submit" onclick="return confirm('¿Cancelar esta misión? No se eliminará el historial.')">Cancelar</button></form><% } %>
+              <% if (currentUser.role === 'admin_player' && ['approved','canceled'].includes(mission.status)) { %><form method="post" action="/missions/<%= mission._id %>/archive"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="secondary-action compact-action" type="submit" onclick="return confirm('¿Mover esta misión al historial archivado?')">Archivar</button></form><% } %>
             </div></div>
           </article>
         <% }) %>

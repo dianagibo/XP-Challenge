@@ -11,7 +11,7 @@ const weekdayField = document.querySelector('#weekdayField');
 const recurringFields = document.querySelectorAll('.recurring-only');
 function updateRecurrenceFields() {
   if (!frequency) return;
-  weekdayField.hidden = frequency.value !== 'weekly';
+  if (weekdayField) weekdayField.hidden = frequency.value !== 'weekly';
   recurringFields.forEach((field) => { field.hidden = frequency.value === 'once'; });
 }
 frequency?.addEventListener('change', updateRecurrenceFields);

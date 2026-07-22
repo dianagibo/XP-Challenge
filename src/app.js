@@ -55,7 +55,7 @@ app.use((request, response, next) => {
   const labels = {
     category: { all: 'Todas las misiones', home: 'Hogar', school: 'Colegio', wellbeing: 'Bienestar', personal_growth: 'Crecimiento personal', family: 'Familia' },
     difficulty: { easy: 'Fácil', medium: 'Media', hard: 'Difícil', epic: 'Épica' },
-    status: { assigned: 'Asignada', pending_validation: 'Esperando aprobación', changes_requested: 'Necesita ajustes', approved: 'Aprobada', canceled: 'Cancelada', active: 'Activa', paused: 'Pausada', completed: 'Cumplida', expired: 'Finalizada', pending_delivery: 'Pendiente de entrega', delivered: 'Entregada' },
+    status: { pending_acceptance: 'Esperando respuesta', assigned: 'Asignada', pending_validation: 'Esperando aprobación', changes_requested: 'Necesita ajustes', approved: 'Aprobada', canceled: 'Cancelada', active: 'Activa', paused: 'Pausada', completed: 'Cumplida', expired: 'Finalizada', pending_delivery: 'Pendiente de entrega', delivered: 'Entregada' },
     frequency: { once: 'Una vez', daily: 'Todos los días', weekly: 'Días seleccionados' }
   };
   response.locals.labelFor = (group, value) => labels[group]?.[value] || String(value || '').replaceAll('_', ' ');

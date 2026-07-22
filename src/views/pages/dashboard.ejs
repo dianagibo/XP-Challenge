@@ -47,7 +47,7 @@
       <section class="main-column">
         <div class="section-heading" id="missions">
           <div><span class="eyebrow">AVENTURA DE HOY</span><h2>Tus misiones</h2></div>
-          <% if (canManageMissions) { %><a class="text-action" href="/missions/create"><i class="bi bi-plus-lg"></i> Crear misión</a><% } %>
+          <% if (canCreateMissions) { %><a class="text-action" href="/missions/create"><i class="bi bi-plus-lg"></i> <%= currentUser.role === 'player' ? 'Retar a Diana' : 'Crear misión' %></a><% } %>
         </div>
         <% if (flash) { %><div class="success-alert"><i class="bi bi-check-circle-fill"></i><%= flash.message %></div><% } %>
         <% if (activities.length) { %>
@@ -57,7 +57,7 @@
               <div class="mission-icon icon-purple"><i class="bi bi-flag-fill"></i></div>
               <div class="mission-copy"><span class="mission-category"><%= labelFor('category', mission.category) %> · <%= labelFor('difficulty', mission.difficulty) %><%= mission.recurringMission ? ' · recurrente' : '' %></span><h3><%= mission.title %></h3><p><%= mission.description %><br><small>Fecha límite: <%= formatDate(mission.dueDate) %></small></p></div>
               <div class="mission-reward"><span>+<%= mission.xpReward %> XP</span><span><i class="bi bi-coin"></i> <%= mission.coinReward %></span></div>
-              <% if (!canManageMissions && ['assigned', 'changes_requested'].includes(mission.status)) { %>
+              <% if (['pending_acceptance', 'assigned', 'changes_requested'].includes(mission.status)) { %>
                 <a class="round-action" href="/missions/<%= mission._id %>" aria-label="Abrir <%= mission.title %>"><i class="bi bi-chevron-right"></i></a>
               <% } else { %>
                 <span class="status-chip status-<%= mission.status %>"><%= labelFor('status', mission.status) %></span>
@@ -65,8 +65,8 @@
             </article>
           <% }) %>
           </div>
-        <% } else if (canManageMissions) { %>
-          <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>¿Lista para crear la primera misión?</h3><p>Asígnale a Sofi un reto con propósito y elige sus premios.</p></div><a class="primary-action" href="/missions/create">Crear misión</a></article>
+        <% } else if (canCreateMissions) { %>
+          <article class="mission-empty"><i class="bi bi-stars"></i><div><h3>¿Lista para crear la primera misión?</h3><p><%= currentUser.role === 'player' ? 'Reta a Diana y conviertan el progreso en un juego de las dos.' : 'Asígnale a Sofi un reto con propósito y elige sus premios.' %></p></div><a class="primary-action" href="/missions/create"><%= currentUser.role === 'player' ? 'Retar a Diana' : 'Crear misión' %></a></article>
         <% } else { %>
           <article class="mission-empty"><i class="bi bi-flag"></i><div><h3>Aún no tienes misiones</h3><p>Tu próxima aventura aparecerá aquí.</p></div></article>
         <% } %>
