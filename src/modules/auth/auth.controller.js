@@ -1,5 +1,30 @@
 const authService = require('./auth.service');
 
+const SAFE_RETURN_PATHS = new Set(['/', '/avatars', '/rewards', '/progress']);
+const SAFE_RETURN_PREFIXES = [
+  '/missions/',
+  '/reward-catalog',
+  '/weekly-goals',
+  '/account/',
+  '/notifications',
+  '/bonuses',
+  '/weekly-report',
+  '/family-users'
+];
+
+function safeReturnTo(value) {
+  if (typeof value !== 'string') return '/';
+  try {
+    const url = new URL(value, 'http://localhost');
+    if (url.origin !== 'http://localhost') return '/';
+    const isApplicationPage = SAFE_RETURN_PATHS.has(url.pathname)
+      || SAFE_RETURN_PREFIXES.some((prefix) => url.pathname === prefix || url.pathname.startsWith(prefix));
+    return isApplicationPage ? `${url.pathname}${url.search}` : '/';
+  } catch {
+    return '/';
+  }
+}
+
 function showLogin(request, response) {
   response.render('pages/login', { pageTitle: 'Iniciar sesión', error: null, username: '' });
 }
@@ -20,7 +45,8 @@ async function login(request, response, next) {
       });
     }
 
-    const destination = request.session.returnTo || '/';
+    const destination = safeReturnTo(request.session.returnTo);
+    delete request.session.returnTo;
     return request.session.regenerate((error) => {
       if (error) return next(error);
       request.session.user = authenticatedUser;
@@ -39,4 +65,4 @@ function logout(request, response, next) {
   });
 }
 
-module.exports = { showLogin, login, logout };
+module.exports = { showLogin, login, logout, safeReturnTo };
