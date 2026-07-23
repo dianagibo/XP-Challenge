@@ -4,11 +4,12 @@ const Redemption = require('../rewards/redemption.model');
 const User = require('../users/user.model');
 const rewardService = require('../rewards/reward.service');
 const Achievement = require('./achievement.model');
+const { calculateStreaks } = require('./streak.service');
 
 const ACHIEVEMENT_DEFINITIONS = Object.freeze([
   { code: 'first_mission', name: 'Primera victoria', description: 'Completa tu primera misión aprobada.', icon: 'bi-flag-fill' },
   { code: 'five_missions', name: 'Exploradora de misiones', description: 'Completa 5 misiones aprobadas.', icon: 'bi-compass-fill' },
-  { code: 'three_day_streak', name: '¡En racha!', description: 'Alcanza una racha de 3 días.', icon: 'bi-fire' },
+  { code: 'five_weekday_streak', name: '¡Semana completada!', description: 'Completa 5 días hábiles consecutivos y gana 25 XP y 5 monedas.', icon: 'bi-fire' },
   { code: 'hundred_xp', name: 'Coleccionista de XP', description: 'Consigue 100 XP en total.', icon: 'bi-stars' },
   { code: 'first_redemption', name: 'Cazadora de recompensas', description: 'Canjea tu primera recompensa.', icon: 'bi-gift-fill' }
 ]);
@@ -57,7 +58,7 @@ async function unlockAchievements(playerId, familyId, stats) {
   const codes = [];
   if (stats.approvedMissions >= 1) codes.push('first_mission');
   if (stats.approvedMissions >= 5) codes.push('five_missions');
-  if (stats.bestStreak >= 3) codes.push('three_day_streak');
+  if (stats.bestStreak >= 5) codes.push('five_weekday_streak');
   if (stats.totalXp >= 100) codes.push('hundred_xp');
   if (stats.redemptionCount >= 1) codes.push('first_redemption');
   if (!codes.length) return;
@@ -70,42 +71,6 @@ async function unlockAchievements(playerId, familyId, stats) {
   })), { ordered: false });
 }
 
-function calculateStreaks(dates) {
-  const days = [...new Set(dates.filter(Boolean).map(bogotaDateString))].sort();
-  if (!days.length) return { currentStreak: 0, bestStreak: 0 };
-  let bestStreak = 1;
-  let run = 1;
-  for (let index = 1; index < days.length; index += 1) {
-    if (differenceInDays(days[index - 1], days[index]) === 1) run += 1;
-    else run = 1;
-    bestStreak = Math.max(bestStreak, run);
-  }
-
-  const lastDay = days.at(-1);
-  const today = bogotaDateString(new Date());
-  const yesterday = shiftDay(today, -1);
-  if (![today, yesterday].includes(lastDay)) return { currentStreak: 0, bestStreak };
-  let currentStreak = 1;
-  for (let index = days.length - 1; index > 0; index -= 1) {
-    if (differenceInDays(days[index - 1], days[index]) !== 1) break;
-    currentStreak += 1;
-  }
-  return { currentStreak, bestStreak };
-}
-
-function bogotaDateString(date) {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit'
-  }).format(new Date(date));
-}
-function differenceInDays(first, second) {
-  return Math.round((new Date(`${second}T12:00:00Z`) - new Date(`${first}T12:00:00Z`)) / 86400000);
-}
-function shiftDay(value, amount) {
-  const date = new Date(`${value}T12:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + amount);
-  return date.toISOString().slice(0, 10);
-}
 function notFoundError(message) { const error = new Error(message); error.status = 404; return error; }
 
 module.exports = { ACHIEVEMENT_DEFINITIONS, getPlayerProgress, getFamilyProgress, calculateStreaks };

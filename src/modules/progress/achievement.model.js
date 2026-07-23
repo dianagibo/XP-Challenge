@@ -5,7 +5,7 @@ const achievementSchema = new mongoose.Schema({
   player: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   code: {
     type: String,
-    enum: ['first_mission', 'five_missions', 'three_day_streak', 'hundred_xp', 'first_redemption'],
+    enum: ['first_mission', 'five_missions', 'three_day_streak', 'five_weekday_streak', 'hundred_xp', 'first_redemption'],
     required: true
   },
   unlockedAt: { type: Date, required: true, default: Date.now }

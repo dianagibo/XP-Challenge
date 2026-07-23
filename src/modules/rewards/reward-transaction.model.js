@@ -5,8 +5,10 @@ const rewardTransactionSchema = new mongoose.Schema({
   recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   sourceActivity: { type: mongoose.Schema.Types.ObjectId, ref: 'Activity', default: null },
   sourceBonus: { type: mongoose.Schema.Types.ObjectId, ref: 'Bonus', default: null },
+  streakCycleStart: { type: String, default: null },
+  streakCycleEnd: { type: String, default: null },
   grantedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  type: { type: String, enum: ['mission_approved', 'manual_bonus', 'manual_bonus_voided'], required: true },
+  type: { type: String, enum: ['mission_approved', 'manual_bonus', 'manual_bonus_voided', 'weekday_streak_bonus'], required: true },
   xpAmount: { type: Number, required: true },
   coinAmount: { type: Number, required: true },
   xpBalanceAfter: { type: Number, required: true, min: 0 },
@@ -16,5 +18,9 @@ const rewardTransactionSchema = new mongoose.Schema({
 rewardTransactionSchema.index({ recipient: 1, createdAt: -1 });
 rewardTransactionSchema.index({ sourceActivity: 1 }, { unique: true, partialFilterExpression: { sourceActivity: { $type: 'objectId' } } });
 rewardTransactionSchema.index({ sourceBonus: 1, type: 1 }, { unique: true, partialFilterExpression: { sourceBonus: { $type: 'objectId' } } });
+rewardTransactionSchema.index(
+  { family: 1, recipient: 1, type: 1, streakCycleEnd: 1 },
+  { unique: true, partialFilterExpression: { type: 'weekday_streak_bonus' } }
+);
 
 module.exports = mongoose.model('RewardTransaction', rewardTransactionSchema);
