@@ -3,6 +3,7 @@ const RecurringMission = require('./recurring-mission.model');
 const Membership = require('../families/membership.model');
 const rewardService = require('../rewards/reward.service');
 const weeklyGoalService = require('../goals/weekly-goal.service');
+const streakService = require('../progress/streak.service');
 const notificationService = require('../notifications/notification.service');
 const { effectivePermissions } = require('../families/permissions');
 
@@ -444,6 +445,7 @@ async function reviewActivity(activityId, decision, reviewNote, currentUser) {
         activity.rewardsGrantedAt = new Date();
         activity.rewardTransaction = transaction._id;
         await weeklyGoalService.applyApprovedMission(activity, session);
+        await streakService.applyApprovedMission(activity, currentUser.id, session);
       }
 
       reviewedActivity = await activity.save({ session });

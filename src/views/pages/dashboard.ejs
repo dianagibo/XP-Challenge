@@ -76,9 +76,9 @@
       <aside class="right-column">
         <article class="streak-card">
           <div class="fire"><i class="bi bi-fire"></i></div>
-          <div><span class="eyebrow">RACHA ACTUAL</span><h2><%= game.streak.count %> <small><%= game.streak.label %></small></h2><p>Mejor racha: <strong><%= game.streak.best %> días</strong></p></div>
+          <div><span class="eyebrow">RACHA DE DÍAS HÁBILES</span><h2><%= game.streak.count %> <small>de 5 días</small></h2><p>Premio: <strong>25 XP y 5 monedas</strong></p></div>
           <div class="streak-days">
-            <% ['L','M','X','J','V','S','D'].forEach((day, index) => { const isStreakDay = index >= 7 - Math.min(game.streak.count, 7); %>
+            <% ['1','2','3','4','5'].forEach((day, index) => { const isStreakDay = index < game.streak.count; %>
               <span class="<%= isStreakDay ? 'done' : '' %>"><i class="bi <%= isStreakDay ? 'bi-check' : '' %>"></i><small><%= day %></small></span>
             <% }) %>
           </div>

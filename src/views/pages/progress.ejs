@@ -8,7 +8,7 @@
     </header>
     <section class="progress-stats-grid">
       <article class="progress-stat-card purple"><i class="bi bi-stars"></i><span>Total XP</span><strong><%= progress.stats.totalXp %></strong><small>Nivel <%= progress.stats.level %> · <%= progress.stats.title %></small></article>
-      <article class="progress-stat-card orange"><i class="bi bi-fire"></i><span>Racha actual</span><strong><%= progress.stats.currentStreak %> días</strong><small>Mejor racha: <%= progress.stats.bestStreak %> días</small></article>
+      <article class="progress-stat-card orange"><i class="bi bi-fire"></i><span>Racha de días hábiles</span><strong><%= progress.stats.currentStreak %> de 5</strong><small>5 días: +25 XP y +5 monedas</small></article>
       <article class="progress-stat-card green"><i class="bi bi-check-circle-fill"></i><span>Misiones aprobadas</span><strong><%= progress.stats.approvedMissions %></strong><small>Cada aprobación cuenta</small></article>
     </section>
     <section class="history-card level-progress-card">

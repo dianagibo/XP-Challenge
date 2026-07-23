@@ -5,7 +5,7 @@ const notificationSchema = new mongoose.Schema({
   recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   type: {
     type: String,
-    enum: ['mission_assigned', 'mission_accepted', 'mission_returned', 'mission_submitted', 'mission_approved', 'mission_changes_requested', 'goal_created', 'goal_completed', 'reward_redeemed', 'reward_delivered', 'bonus_granted', 'bonus_voided'],
+    enum: ['mission_assigned', 'mission_accepted', 'mission_returned', 'mission_submitted', 'mission_approved', 'mission_changes_requested', 'goal_created', 'goal_completed', 'reward_redeemed', 'reward_delivered', 'bonus_granted', 'bonus_voided', 'streak_bonus_granted'],
     required: true
   },
   title: { type: String, required: true, maxlength: 120 },
